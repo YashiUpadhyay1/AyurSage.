@@ -1,0 +1,1035 @@
+/* ==========================================================================
+   1. GLOBAL RESET & BASE STYLES
+   ========================================================================== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ==========================================================================
+   2. AUTHENTICATION SCREENS (Login & Signup)
+   ========================================================================== */
+.auth-container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background: white;
+}
+
+.hero-section {
+  flex: 1.2;
+  background-color: #0d2111;
+  background-size: cover;
+  background-position: center;
+  padding: 60px;
+  color: white;
+  display: flex;
+  position: relative;
+}
+
+.hero-content {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.logo-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
+.brand-name { font-size: 1.5rem; font-weight: 600; }
+
+.hero-title {
+  font-family: serif;
+  font-size: 3.5rem;
+  line-height: 1.1;
+  margin-bottom: 20px;
+  text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.6);
+}
+
+.hero-subtitle { color: #a5c0a0; font-style: italic; }
+
+.hero-description {
+  color: #ffffff;
+  max-width: 450px;
+  margin-bottom: 40px;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  text-shadow: 1px 1px 8px rgba(0, 0, 0, 0.6);
+}
+
+.hero-features-list { list-style: none; color: #d1ddd4; }
+.hero-features-list li { margin-bottom: 15px; font-size: 1rem; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); }
+
+.stats-row { display: flex; gap: 15px; margin-top: auto; padding-top: 40px; }
+.stat-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  padding: 18px;
+  border-radius: 12px;
+  flex: 1;
+  text-align: center;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-section {
+  flex: 0.8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px;
+}
+
+.form-wrapper { width: 100%; max-width: 400px; }
+
+.auth-toggle {
+  background: #f1f1f1;
+  padding: 5px;
+  border-radius: 12px;
+  display: inline-flex;
+  margin-bottom: 40px;
+}
+
+.toggle-btn {
+  padding: 10px 40px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: #888;
+}
+
+.toggle-btn.active {
+  background: white;
+  color: black;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.welcome-title { font-family: serif; font-size: 2.2rem; margin-bottom: 8px; }
+.welcome-subtitle { color: #666; margin-bottom: 30px; font-size: 0.9rem; }
+
+.input-field { margin-bottom: 20px; }
+.input-field label { display: block; font-size: 0.9rem; font-weight: 500; margin-bottom: 8px; }
+
+.input-field input {
+  width: 100%;
+  padding: 15px;
+  background: #eef4ff;
+  border: 1px solid #eef2f8;
+  border-radius: 10px;
+  font-size: 1rem;
+  outline: none;
+}
+
+/* FIXED: Removed reveal/clear hidden properties to allow browser eye icon */
+.password-input-wrapper { 
+  position: relative; 
+  display: flex; 
+  align-items: center; 
+}
+
+.main-button {
+  width: 100%;
+  padding: 16px;
+  background: #2d4a27;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 15px;
+  font-size: 1rem;
+}
+
+.footer-link { text-align: center; margin-top: 25px; font-size: 0.95rem; }
+.signup-link { color: #4a148c; font-weight: 600; text-decoration: underline; }
+
+/* ==========================================================================
+   3. HOME PAGE MAIN LAYOUT
+   ========================================================================== */
+.home-page-wrapper {
+  background-color: #142C1B;
+  color: #ffffff;
+  min-height: 100vh;
+}
+
+/* Navigation Capsule Bar */
+.home-nav-dark {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 5%;
+  background: transparent;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Rounded Navigation links container */
+.nav-center-links {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 12px;
+  border-radius: 50px;
+}
+
+.nav-box {
+  color: #c5d1c8;
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 10px 18px;
+  border-radius: 30px;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.nav-box:hover {
+  background: rgba(167, 255, 131, 0.1);
+  color: #A7FF83;
+}
+
+/* Styles for the current active route */
+.nav-box.active {
+  background: #A7FF83;
+  color: #142C1B;
+  font-weight: 700;
+}
+
+.brand-name-light { font-size: 1.6rem; font-weight: 600; color: white; margin-left: 10px; }
+
+.logout-btn-light {
+  background: transparent;
+  border: 1px solid #A7FF83;
+  color: #A7FF83;
+  padding: 8px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.logout-btn-light:hover { background: #A7FF83; color: #142C1B; }
+
+/* ==========================================================================
+   4. HOME HERO SECTION
+   ========================================================================== */
+.home-hero-dark {
+  display: flex;
+  padding: 80px 8%;
+  align-items: center;
+  gap: 60px;
+}
+
+.section-tag { color: #A7FF83; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 20px; font-weight: 700; }
+
+.hero-main-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 4rem;
+  line-height: 1.1;
+  margin-bottom: 25px;
+}
+
+.hero-accent-text { font-style: italic; color: #d27b5c; }
+
+.hero-para { color: #c5d1c8; font-size: 1.1rem; line-height: 1.7; margin-bottom: 40px; max-width: 500px; }
+
+.parrot-action-btn {
+  background: #A7FF83;
+  color: #142C1B;
+  border: none;
+  padding: 18px 40px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.tridosha-frame { width: 100%; max-width: 550px; border-radius: 40px; opacity: 0.9; }
+
+/* ==========================================================================
+   5. SERVICE CARDS (Glassmorphism & Radial Effects)
+   ========================================================================== */
+.services-section-dark { padding: 60px 8%; background: rgba(0,0,0,0.1); }
+.services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+
+.service-card-premium {
+  background-color: #142C1B;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 45px 35px;
+  border-radius: 28px;
+  position: relative; 
+  overflow: hidden; 
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s ease, border-color 0.4s ease;
+}
+
+/* Pseudo-element for the soft light "ball" effect in cards */
+.service-card-premium::before {
+  content: "";
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background-color: rgba(167, 255, 131, 0.04); 
+  border-radius: 50%;
+  top: -100px;
+  right: -100px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.service-card-premium::after {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border-radius: 50%;
+  bottom: -50px;
+  left: -50px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.service-card-premium:hover {
+  transform: translateY(-10px);
+  border-color: rgba(167, 255, 131, 0.3);
+}
+
+/* Ensuring content stays above the background effects */
+.card-indicator, 
+.service-card-premium h3, 
+.service-card-premium p, 
+.parrot-outline-btn {
+  position: relative;
+  z-index: 2;
+}
+
+.card-indicator { width: 35px; height: 3px; background: #A7FF83; margin-bottom: 25px; border-radius: 10px; }
+.service-card-premium h3 { font-family: 'Playfair Display', serif; font-size: 1.8rem; margin-bottom: 15px; }
+.service-card-premium p { color: #a5c0a0; line-height: 1.7; margin-bottom: 30px; font-size: 0.95rem; }
+
+.parrot-outline-btn {
+  background: transparent;
+  border: 1.5px solid #A7FF83;
+  color: #A7FF83;
+  padding: 10px 25px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  width: fit-content;
+  transition: 0.3s;
+}
+
+.parrot-outline-btn:hover { background: #A7FF83; color: #142C1B; }
+
+/* ==========================================================================
+   6. PRINCIPLES SECTION (Typography & Spacing)
+   ========================================================================== */
+.principles-section-dark { padding: 100px 8%; }
+.principles-title { font-family: 'Playfair Display', serif; font-size: 3rem; margin-bottom: 60px; }
+.principles-container { display: flex; gap: 40px; }
+.principle-block { flex: 1; }
+.step-number { font-size: 2.5rem; color: rgba(167, 255, 131, 0.1); font-family: serif; display: block; }
+.principle-block h4 { margin: 15px 0; font-size: 1.3rem; }
+.principle-block p { color: #a5c0a0; line-height: 1.6; }
+/* --- PRAKRITI ASSESSMENT THEME --- */
+.prakriti-page-theme {
+    display: flex;
+    justify-content: center;
+    padding-top: 100px;
+    min-height: 100vh;
+}
+
+.back-fixed {
+    position: fixed;
+    top: 30px;
+    left: 5%;
+    z-index: 100;
+}
+
+.prakriti-stepper-container {
+    width: 100%;
+    max-width: 700px;
+    text-align: center;
+}
+
+/* Progress indicator at top */
+.overall-progress-bg {
+    width: 100%;
+    height: 6px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+    margin: 20px 0 40px 0;
+}
+
+.overall-progress-fill {
+    height: 100%;
+    background: #A7FF83;
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+/* Question Card Styles */
+.question-step-card {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 40px;
+    border-radius: 24px;
+    border: 1px solid rgba(167, 255, 131, 0.1);
+}
+
+.question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+}
+
+.options-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.option-pill {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #c5d1c8;
+    padding: 18px 25px;
+    border-radius: 15px;
+    text-align: left;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: 0.3s;
+}
+
+.option-pill:hover {
+    background: rgba(167, 255, 131, 0.05);
+    border-color: #A7FF83;
+}
+
+.option-pill.selected {
+    background: rgba(167, 255, 131, 0.1);
+    border-color: #A7FF83;
+    color: #A7FF83;
+}
+
+.radio-circle {
+    width: 18px;
+    height: 18px;
+    border: 2px solid currentColor;
+    border-radius: 50%;
+    margin-right: 15px;
+}
+
+.stepper-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Results Display */
+.prakriti-result-card-premium {
+    background: #1a3522;
+    padding: 50px;
+    border-radius: 30px;
+    border: 2px solid #A7FF83;
+}
+
+.dominant-badge {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(0,0,0,0.2);
+    border-radius: 15px;
+}
+
+.result-stat-item {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.stat-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.stat-bar-bg {
+    width: 100%;
+    height: 12px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 10px;
+}
+
+.stat-bar-fill { height: 100%; border-radius: 10px; }
+.stat-bar-fill.vata { background: #d27b5c; }
+.stat-bar-fill.pitta { background: #ffcc00; }
+.stat-bar-fill.kapha { background: #A7FF83; }
+
+
+
+/* --- DOSHA FORM STYLING --- */
+.input-field-wrapper {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.input-field-wrapper label {
+    color: #A7FF83;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.custom-input, .custom-select, .custom-textarea {
+    width: 100%;
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(167, 255, 131, 0.2);
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    outline: none;
+    transition: 0.3s;
+}
+
+
+
+.custom-select option {
+    background: #142C1B; /* Matches your dark green theme */
+    color: white;
+}
+
+.custom-textarea {
+    resize: none;
+    font-family: inherit;
+}
+/* Custom Select Styling for Dark Mode */
+.custom-select {
+    appearance: none; /* Removes default arrow */
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A7FF83' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 15px;
+    padding-right: 40px !important;
+}
+
+/* Fixes the dropdown list colors */
+.custom-select option {
+    background-color: #1a3522; /* Dark background for options */
+    color: white;
+    padding: 10px;
+}
+
+/* Input validation visual */
+.parrot-action-btn:disabled {
+    cursor: not-allowed;
+    background: #444;
+    color: #888;
+    border-color: #555;
+}
+
+
+
+
+/* result*/
+/* ==========================================================================
+   PRESCRIPTION REPORT - FINAL THEME FIX
+   ========================================================================== */
+
+.prescription-container {
+    width: 100%;
+    max-width: 850px;
+    margin: 0 auto;
+    background: #1a3522;
+    border: 1px solid rgba(167, 255, 131, 0.15);
+    border-radius: 24px;
+    padding: 40px;
+    box-sizing: border-box;
+}
+
+.rx-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 2px solid #A7FF83;
+    padding-bottom: 20px;
+    margin-bottom: 30px;
+}
+
+.rx-main-title { 
+    font-size: 2.2rem; 
+    font-family: 'Playfair Display', serif; 
+    color: white;
+}
+
+.rx-type-tag { 
+    color: #A7FF83; 
+    letter-spacing: 2px; 
+    font-weight: 700; 
+    font-size: 0.8rem; 
+}
+
+.rx-date-id { text-align: right; color: #a5c0a0; font-size: 0.9rem; }
+
+.rx-patient-box {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.rx-meta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.rx-meta-item span { font-size: 0.75rem; color: #a5c0a0; text-transform: uppercase; }
+.rx-meta-item p { font-weight: 700; font-size: 1.1rem; margin-top: 4px; color: white; }
+
+.text-diagnosis-highlight {
+    color: #A7FF83 !important;
+    font-weight: 700;
+}
+
+.rx-vitals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.rx-vital-card {
+    background: rgba(255, 255, 255, 0.03);
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #A7FF83;
+}
+
+.rx-vital-card span { font-size: 0.8rem; color: #a5c0a0; }
+.rx-vital-card h3 { margin-top: 5px; font-size: 1.2rem; color: white; }
+
+.rx-sub-label { 
+    color: #A7FF83; 
+    font-size: 0.85rem; 
+    margin-bottom: 8px; 
+    text-transform: uppercase; 
+    font-weight: 700;
+}
+
+.rx-recommendations {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 30px;
+}
+
+.rx-section-title { 
+    color: #A7FF83; 
+    font-size: 1.1rem; 
+    margin-bottom: 15px; 
+    border-bottom: 1px solid rgba(167, 255, 131, 0.2); 
+    padding-bottom: 5px; 
+}
+
+.rx-list { list-style: none; padding: 0; }
+.rx-list li { padding-left: 20px; position: relative; margin-bottom: 12px; color: #c5d1c8; }
+
+/* Vedic Bullet Point Fix */
+.rx-list li::before { 
+    content: "•"; 
+    position: absolute; 
+    left: 0; 
+    color: #A7FF83; 
+    font-size: 1.5rem; 
+    font-weight: bold; 
+    top: -5px; 
+}
+
+.rx-footer-btns { display: grid; grid-template-columns: 1fr 1.5fr 1.5fr; gap: 15px; margin-top: 40px; }
+
+.rx-btn { padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; }
+.rx-btn.outline { background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; }
+.rx-btn.primary { background: #A7FF83; color: #142C1B; }
+.rx-btn.accent { background: #FF9933; color: white; }
+
+/* Print Mode */
+@media print {
+    .home-nav-dark, .rx-footer-btns { display: none; }
+    .about-direct-layout { background: white !important; padding: 0 !important; }
+    .prescription-container { border: none !important; color: black !important; background: white !important; }
+    .rx-main-title, .rx-section-title, .text-diagnosis-highlight, .rx-sub-label { color: #142C1B !important; }
+}
+/* ==========================================================================
+   ABOUT PAGE - FINAL STYLING 
+   ========================================================================== */
+
+.about-direct-layout {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.about-content-wrapper {
+    width: 100%;
+    max-width: 1100px;
+}
+
+/* Titles - RESTORED ORIGINAL MASSIVE SIZE */
+.rx-main-title {
+    color: #ffffff !important;
+    font-family: 'Playfair Display', serif;
+    font-size: 3.5rem !important; 
+    line-height: 1.1;
+    margin-bottom: 20px;
+    font-weight: 700;
+}
+
+.vision-tag-gold {
+    color: #FFD700 !important;
+    letter-spacing: 5px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Palette */
+.text-gold { color: #FFD700; }
+.text-mint { color: #A7FF83 !important; }
+.text-saffron { color: #FF9933 !important; }
+.text-white-bold { color: #ffffff; font-weight: 600; }
+
+.about-para-large {
+    color: #e0eee3;
+    font-size: 1.25rem !important;
+    line-height: 1.8;
+    margin-bottom: 30px;
+    max-width: 90%;
+}
+
+/* Advantage Section - Shifted 2 lines down with margin-top */
+.about-edge-list {
+    flex: 0.6;
+    border-left: 2px solid #A7FF83;
+    padding-left: 35px;
+    margin-top: 60px !important; /* 2 line shift down */
+}
+
+.edge-title-advantage {
+    color: #FF9933 !important; /* Orange */
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-size: 1.5rem !important;
+    margin-bottom: 40px !important; 
+}
+
+/* List with White Dots */
+.clean-list-white-dots {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.clean-list-white-dots li {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 22px;
+    color: #ffffff;
+    font-size: 1.2rem !important;
+    display: flex;
+    align-items: center;
+}
+
+.clean-list-white-dots li::before {
+    content: "•";
+    color: #ffffff !important; 
+    font-size: 2.5rem;
+    position: absolute;
+    left: 0;
+    top: -8px;
+}
+
+/* Light Blue Mission Text */
+.mission-para-light-blue {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 2rem !important;
+    max-width: 900px;
+    margin: 40px auto;
+    color: #ADD8E6 !important; /* Light Blue */
+    line-height: 1.5;
+    text-align: center;
+}
+
+.about-header-simple {
+    border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+    padding-bottom: 25px;
+    margin-bottom: 60px;
+}
+
+.parrot-action-btn-large {
+    background-color: #A7FF83;
+    color: #000;
+    padding: 18px 50px;
+    font-size: 1.3rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.about-mission-footer {
+    margin-top: 100px;
+    text-align: center;
+    border-top: 1px solid rgba(167, 255, 131, 0.1);
+    padding-top: 50px;
+}
+
+/* ==========================================================================
+   UNIVERSAL RECORD LIST SYSTEM (Dashboard, Booked, & Experts)
+   ========================================================================== */
+
+/* Main vertical container for all list-based views */
+.dashboard-list-scroll {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; 
+    margin-top: 50px;
+}
+
+/* Glassmorphism Row: Used in Dashboard, Consultations, and MyConsultations */
+.dashboard-row-item {
+    background: rgba(255, 255, 255, 0.03); 
+    border: 1px solid rgba(167, 255, 131, 0.1);
+    border-radius: 16px; 
+    padding: 25px 30px;
+    transition: all 0.3s ease;
+}
+
+/* Hover Interaction: Premium slide effect for desktop users */
+.dashboard-row-item:hover {
+    background: rgba(167, 255, 131, 0.08);
+    transform: translateX(10px); 
+    border-color: rgba(167, 255, 131, 0.4);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Flexible Grid: Adjusts columns based on the specific page needs */
+.dash-meta-grid {
+    display: grid;
+    align-items: center;
+    gap: 25px;
+    /* Default column setup - can be overridden in JSX via inline style if needed */
+    grid-template-columns: 0.5fr 1fr 1fr 1.8fr 0.6fr 0.8fr;
+}
+
+/* Field Labels: Gold headers for Ref ID, Patient, Date, etc. */
+.dash-item span {
+    display: block;
+    font-size: 0.7rem;
+    color: #FFD700; 
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+/* Field Values: The actual data (Name, Date, Result) */
+.dash-item p {
+    font-size: 1.1rem;
+    margin: 0;
+    color: #ffffff;
+}
+
+/* Highlighting: Used for Diagnosis (Dashboard) or Specialty (Consultations) */
+.text-diagnosis-highlight {
+    color: #A7FF83 !important; 
+    font-weight: 600;
+}
+
+/* Alignment for the Action Button (View / Book Now) */
+.dash-item-btn {
+    text-align: right;
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS (Universal)
+   ========================================================================== */
+@media (max-width: 900px) {
+    .dash-meta-grid {
+        grid-template-columns: 1fr 1fr !important; /* Stack into 2 columns */
+        gap: 20px;
+    }
+    .dash-item-btn { 
+        text-align: left; 
+        grid-column: span 2; 
+        margin-top: 10px;
+    }
+    .dashboard-row-item:hover {
+        transform: none; /* Disable slide on mobile for better UX */
+    }
+}
+
+
+
+
+
+
+
+
+/* --- MODAL STYLES --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: #142C1B;
+    border: 1px solid #A7FF83;
+    padding: 40px;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 500px;
+    text-align: center;
+}
+
+.modal-list {
+    margin-top: 25px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.modal-item {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(167, 255, 131, 0.2);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+    text-align: left;
+}
+
+.modal-item:hover {
+    background: rgba(167, 255, 131, 0.1);
+    border-color: #A7FF83;
+}
+
+.modal-item span { font-size: 0.7rem; color: #FFD700; display: block; }
+.modal-item p { margin: 5px 0 0 0; color: #fff; font-weight: 600; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Styling for restricted inputs in Modal */
+.modal-content .custom-select, .modal-content .custom-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(167, 255, 131, 0.3);
+    color: white;
+    padding: 12px;
+    border-radius: 10px;
+    outline: none;
+    font-size: 0.95rem;
+}
+
+.modal-content .custom-select option {
+    background: #142C1B; /* Dark Green theme for dropdown options */
+    color: white;
+}
+
+/* Label styling for modal inputs */
+.modal-content .input-field-wrapper label {
+    display: block;
+    text-align: left;
+    font-size: 0.7rem;
+    color: #A7FF83;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+}
+
+/* Ensure Date picker icon is visible */
+.custom-input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
