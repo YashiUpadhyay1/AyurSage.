@@ -8,6 +8,7 @@ require("dotenv").config();
 const User = require("./models/User");
 const doshaRoutes = require("./routes/dosha");
 const consultationRoutes = require("./routes/consultation");
+const mlRoutes = require("./routes/mlRoutes");
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use(cors());
 // API Routes
 app.use("/api/dosha", doshaRoutes);
 app.use("/api/consultation", consultationRoutes);
+app.use("/api/ml", mlRoutes);
 
 // Database
 mongoose.connect(process.env.MONGO_URI)
@@ -51,4 +53,6 @@ app.post("/login", async (req, res) => {
   res.json({ message: "Login successful", token });
 });
 
-app.listen(5000, () => console.log("Backend running on PORT 5000"));
+app.listen(5000, "0.0.0.0", () => {
+  console.log("Backend running on PORT 5000");
+});
