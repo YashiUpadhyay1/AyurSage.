@@ -15,22 +15,32 @@ export default function Result() {
 
   const isActive = (path) => location.pathname === path;
 
-  // Fallback if user accesses page directly without form data
-  if (!data) {
-    return (
-      <div className="home-page-wrapper">
-        <div style={{ textAlign: "center", padding: "100px" }}>
-          <h1 className="rx-main-title">No Result Found</h1>
-          <button className="parrot-action-btn-large" onClick={() => navigate("/predict-dosha")}>
-            Go Back
-          </button>
-        </div>
-      </div>
-    );
-  }
+// Fallback if user accesses page directly without form data
+if (!data) {
+  return (
+    <div className="home-page-wrapper">
+      <div style={{ textAlign: "center", padding: "100px" }}>
+        <h1 className="rx-main-title">No Result Found</h1>
+        <p style={{ marginTop: "10px", color: "#ccc" }}>
+          Please complete the Dosha assessment first.
+        </p>
 
-  const { result, details, type, refId } = data;
-  const today = new Date().toLocaleDateString("en-GB");
+        <button
+          className="parrot-action-btn-large"
+          onClick={() => navigate("/predict-dosha")}
+        >
+          Go Back
+        </button>
+      </div>
+    </div>
+  );
+}
+
+ const { result: mlData, details, type, refId } = data;
+
+ const result = mlData?.predicted_dosha || "Unknown";
+ const disease = mlData?.predicted_disease;
+ const today = new Date().toLocaleDateString("en-GB");
 
   // Recommendation logic based on Diagnosis result
   const doshaContent = {
@@ -162,6 +172,21 @@ export default function Result() {
             <h2 className="text-diagnosis-highlight" style={{ fontSize: "1.8rem", marginBottom: "15px" }}>
               {result}
             </h2>
+          
+
+        {/* DISEASE DISPLAY */}
+        {disease && (
+              <>
+                <p className="rx-sub-label" style={{ marginTop: "10px" }}>
+                  Most Likely Disease
+                </p>
+
+                <h2 className="text-diagnosis-highlight">
+                  {disease}
+                </h2>
+              </>
+            )}
+            <br></br>
             <p className="rx-sub-label">Chief Complaints / Symptoms</p>
             <p className="about-para-large" style={{ fontSize: "1.05rem", fontStyle: "italic", color: "#fff" }}>
               "{details?.symptoms || "No specific symptoms reported."}"

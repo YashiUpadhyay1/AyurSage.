@@ -47,21 +47,85 @@ export default function PredictDosha() {
   const isStep2Valid = form.sleep !== "" && form.stress !== "" && form.diet !== "" && form.season !== "";
   const isStep3Valid = form.symptoms.trim() !== ""; 
 
-  const handleSubmit = async () => {
-    let sampleOutcome = "Dosha Imbalance Detected";
-    const token = localStorage.getItem("token");
+  // const handleSubmit = async () => {
+  //   let sampleOutcome = "Dosha Imbalance Detected";
+  //   const token = localStorage.getItem("token");
 
-    try {
-      await axios.post(
-        "http://localhost:5000/api/dosha",
-        { result: sampleOutcome, details: form },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      navigate("/result", { state: { result: sampleOutcome, details: form, type: "Dosha" } });
-    } catch (err) {
-      navigate("/result", { state: { result: sampleOutcome, details: form, type: "Dosha" } });
+  //   try {
+  //     await axios.post(
+  //       "http://localhost:5000/api/ml/predict",
+  //       { result: sampleOutcome, details: form },
+  //       { headers: { Authorization: `Bearer ${token}` } }
+  //     );
+  //     navigate("/result", { state: { result: sampleOutcome, details: form, type: "Dosha" } });
+  //   } catch (err) {
+  //     navigate("/result", { state: { result: sampleOutcome, details: form, type: "Dosha" } });
+  //   }
+  // };
+
+  //  ML CONNECTED SUBMIT
+  const handleSubmit = async () => {
+  const token = localStorage.getItem("token");
+
+  // ✅ 1. Minimum length validation
+  if (form.symptoms.trim().length < 5) {
+    alert("Please enter valid symptoms (at least 5 characters)");
+    return;
+  }
+
+  // ✅ 2. Meaningful text validation
+  if (!/[a-zA-Z]/.test(form.symptoms)) {
+    alert("Enter meaningful symptoms (only random characters not allowed)");
+    return;
+  }
+
+  try {
+    const response = await axios.post(
+      "http://localhost:5000/api/ml/predict",
+      {
+        Age: form.age,
+        Gender: form.gender,
+        Prakriti: form.prakriti,
+        Symptoms: form.symptoms,
+        "Stress Level": form.stress,
+        "Sleep Pattern": form.sleep,
+        "Diet Type": form.diet,
+        Season: form.season,
+        Climate: "Cold"
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    const data = response.data;
+
+    // ✅ 3. ML confidence check (if backend sends error)
+    if (data.error) {
+      alert("Low confidence prediction. Please enter more accurate symptoms.");
+      return;
     }
-  };
+
+    // Save history
+    await axios.post(
+      "http://localhost:5000/api/dosha",
+      { result: data.predicted_dosha, details: form },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    navigate("/result", {
+      state: {
+        result: data,
+        details: form,
+        type: "Dosha"
+      }
+    });
+
+  } catch (err) {
+    console.error("ML Error:", err);
+    alert("ML prediction failed");
+  }
+};
 
   // Modern Flexbox logic to keep step internal content consistent
   const cardInternalStyle = { 
