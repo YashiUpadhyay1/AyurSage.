@@ -37,18 +37,9 @@ export default function MyConsultations() {
     <div className="home-page-wrapper">
       <nav className="home-nav-dark">
         {/* Navbar Same As Above */}
-        <div className="logo-area" onClick={() => navigate("/home")}>
-          <img src="/images/logo.jpeg" alt="Logo" className="logo-img" />
-          <span className="brand-name-light">AyurSage</span>
-        </div>
         <div className="nav-center-links">
           <Link to="/home" className={`nav-box ${isActive("/home") ? "active" : ""}`}>Home</Link>
-          <Link to="/predict-prakriti" className={`nav-box ${isActive("/predict-prakriti") ? "active" : ""}`}>Prakriti</Link>
-          <Link to="/predict-dosha" className={`nav-box ${isActive("/predict-dosha") ? "active" : ""}`}>Dosha</Link>
-          <Link to="/consultation" className={`nav-box ${isActive("/consultation") ? "active" : ""}`}>Consultations</Link>
           <Link to="/dashboard" className={`nav-box ${isActive("/dashboard") ? "active" : ""}`}>Dashboard</Link>
-          <Link to="/my-consultations" className={`nav-box ${isActive("/my-consultations") ? "active" : ""}`}>Booked</Link>
-          <Link to="/about" className={`nav-box ${isActive("/about") ? "active" : ""}`}>About Us</Link>
         </div>
         <div className="nav-right">
           <button onClick={handleLogout} className="logout-btn-light">Logout</button>

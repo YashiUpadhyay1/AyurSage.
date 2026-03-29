@@ -19,6 +19,11 @@ export default function Login() {
     try {
       const res = await axios.post(`${API}/login`, data);
       localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify({
+        name: res.data.user?.name || res.data.name || "",
+        email: res.data.user?.email || res.data.email || data.email,
+        username: res.data.user?.username || res.data.username || "",
+      }));
       alert("Login successful!");
       navigate("/home");
     } catch (err) {
@@ -29,10 +34,10 @@ export default function Login() {
   return (
     <div className="auth-container">
       <div 
-        className="hero-section" 
+        className="auth-hero-section" 
         style={{ backgroundImage: "url('/images/Login img.png')" }}
       >
-        <div className="hero-content">
+        <div className="auth-hero-content">
           <div className="hero-top-group">
             <div className="logo-area">
               <img src="/images/logo.jpeg" alt="Logo" className="logo-img" />

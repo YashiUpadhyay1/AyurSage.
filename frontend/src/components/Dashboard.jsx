@@ -8,13 +8,12 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const location = useLocation();
-
   const isActive = (path) => location.pathname === path;
-
+  
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/login");
-  };
+  }
 
   const fetchHistory = useCallback(async () => {
     const token = localStorage.getItem("token");
@@ -26,7 +25,7 @@ export default function Dashboard() {
       const data = Array.isArray(res.data) ? res.data : [];
       setHistory(data.reverse());
     } catch (err) {
-      setHistory([]); 
+      setHistory([]);
     } finally { setLoading(false); }
   }, [navigate]);
 
@@ -34,30 +33,19 @@ export default function Dashboard() {
 
   return (
     <div className="home-page-wrapper">
-      {/* Universal Capsule Navbar */}
       <nav className="home-nav-dark">
-        <div className="logo-area" onClick={() => navigate("/home")}>
-          <img src="/images/logo.jpeg" alt="Logo" className="logo-img" />
-          <span className="brand-name-light">AyurSage</span>
-        </div>
-        <div className="nav-center-links">
-          <Link to="/home" className={`nav-box ${isActive("/home") ? "active" : ""}`}>Home</Link>
-          <Link to="/predict-prakriti" className={`nav-box ${isActive("/predict-prakriti") ? "active" : ""}`}>Prakriti</Link>
-          <Link to="/predict-dosha" className={`nav-box ${isActive("/predict-dosha") ? "active" : ""}`}>Dosha</Link>
-          <Link to="/consultation" className={`nav-box ${isActive("/consultation") ? "active" : ""}`}>Consultations</Link>
-          <Link to="/dashboard" className={`nav-box ${isActive("/dashboard") ? "active" : ""}`}>Dashboard</Link>
-          <Link to="/my-consultations" className={`nav-box ${isActive("/my-consultations") ? "active" : ""}`}>Booked</Link>
-          <Link to="/about" className={`nav-box ${isActive("/about") ? "active" : ""}`}>About Us</Link>
-        </div>
-        <div className="nav-right">
-          <button onClick={handleLogout} className="logout-btn-light">Logout</button>
-        </div>
-      </nav>
-
-      {/* Main Layout Section */}
-      <div 
-        className="about-direct-layout" 
-        style={{ 
+              {/* Navbar Same As Above */}
+              <div className="nav-center-links">
+                <Link to="/home" className={`nav-box ${isActive("/home") ? "active" : ""}`}>Home</Link>
+                <Link to="/dashboard" className={`nav-box ${isActive("/dashboard") ? "active" : ""}`}>Dashboard</Link>
+              </div>
+              <div className="nav-right">
+                <button onClick={handleLogout} className="logout-btn-light">Logout</button>
+              </div>
+            </nav>
+      <div
+        className="about-direct-layout"
+        style={{
           backgroundImage: "url('/images/Login img.png')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
@@ -67,12 +55,11 @@ export default function Dashboard() {
           width: '100%',
           display: 'flex',
           justifyContent: 'center',
-          padding: '140px 5% 80px 5%',
+          padding: '100px 5% 80px 5%',
           boxSizing: 'border-box'
         }}
       >
         <div className="about-content-wrapper">
-          
           <header className="about-header-simple">
             <h1 className="rx-main-title">Wellness Dashboard</h1>
             <p className="vision-tag-gold" style={{ letterSpacing: '3px' }}>
@@ -86,9 +73,9 @@ export default function Dashboard() {
             </div>
           ) : history.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '80px 20px' }}>
-                 <h2 className="rx-main-title" style={{ fontSize: '2rem', marginBottom: '20px' }}>No History Found</h2>
-                 <p className="about-para-large">Aapne abhi tak koi assessment nahi kiya hai.</p>
-                 <button className="parrot-action-btn-large" onClick={() => navigate("/predict-dosha")}>Start Assessment</button>
+              <h2 className="rx-main-title" style={{ fontSize: '2rem', marginBottom: '20px' }}>No History Found</h2>
+              <p className="about-para-large">Aapne abhi tak koi assessment nahi kiya hai.</p>
+              <button className="parrot-action-btn-large" onClick={() => navigate("/predict-dosha")}>Start Assessment</button>
             </div>
           ) : (
             <div className="dashboard-list-scroll">
@@ -97,42 +84,35 @@ export default function Dashboard() {
                 return (
                   <div key={index} className="dashboard-row-item">
                     <div className="dash-meta-grid">
-                      
                       <div className="dash-item">
                         <span>Ref ID</span>
                         <p style={{ color: '#FFD700', fontWeight: '700' }}>#{displayId}</p>
                       </div>
-
                       <div className="dash-item">
                         <span>Patient</span>
-                        <p className="text-white" style={{ fontWeight: '600' }}>{r.form?.name || "User"}</p>
+                        <p style={{ fontWeight: '600' }}>{r.form?.name || "User"}</p>
                       </div>
-
                       <div className="dash-item">
                         <span>Date</span>
                         <p>{new Date(r.date).toLocaleDateString('en-GB')}</p>
                       </div>
-
                       <div className="dash-item">
                         <span>Diagnosis</span>
                         <p className="text-diagnosis-highlight">{r.result}</p>
                       </div>
-
                       <div className="dash-item">
                         <span>Age</span>
                         <p>{r.form?.age} Y</p>
                       </div>
-
                       <div className="dash-item-btn">
-                        <button 
-                          className="parrot-outline-btn" 
+                        <button
+                          className="parrot-outline-btn"
                           style={{ borderRadius: '50px', padding: '10px 30px' }}
                           onClick={() => navigate("/result", { state: { result: r.result, details: r.form, type: "Dosha", refId: displayId } })}
                         >
                           View
                         </button>
                       </div>
-
                     </div>
                   </div>
                 );
