@@ -1,0 +1,234 @@
+/* ============================================
+   FOOTER.CSS
+   ============================================ */
+
+.footer {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  z-index: 1;
+}
+
+/* FAQ section */
+.footer-faq {
+  padding: 80px 0 60px !important;
+  background: linear-gradient(180deg, transparent, rgba(76,175,130,0.03) 50%, transparent);
+}
+
+.footer-faq .section-container {
+  padding-top: 0 !important;
+}
+
+.faq-grid {
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 10px;
+  margin-top: 40px !important;
+  align-items: start !important;
+}
+
+.faq-item {
+  background: rgba(255,255,255,0.03) !important;
+  border: 1px solid rgba(255,255,255,0.07) !important;
+  border-radius: 14px !important;
+  overflow: hidden;
+  transition: border-color 0.25s ease;
+}
+
+.faq-item.faq-open {
+  border-color: rgba(76, 175, 130, 0.2);
+}
+
+.faq-question {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  padding: 18px 22px !important;
+  background: none !important;
+  border: none !important;
+  cursor: pointer;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  color: rgba(240,237,228,0.85) !important;
+  text-align: left !important;
+  transition: background 0.2s ease;
+}
+
+.faq-question:hover {
+  background: rgba(255,255,255,0.03);
+}
+
+.faq-toggle {
+  font-size: 1.2rem;
+  font-weight: 300;
+  color: #4CAF82;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.faq-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.45s ease;
+}
+
+.faq-open .faq-answer {
+  max-height: 400px !important;
+}
+
+.faq-answer p {
+  padding: 0 22px 20px;
+  font-size: 0.84rem;
+  color: rgba(240, 237, 228, 0.52);
+  line-height: 1.72;
+  display: block !important;
+}
+
+/* Footer main */
+.footer-main {
+  padding: 60px 0 36px !important;
+  background: rgba(0,0,0,0.2) !important;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 48px;
+}
+
+/* Brand */
+.footer-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #F0EDE4;
+  margin-bottom: 16px;
+}
+
+.footer-logo span:first-child {
+  filter: drop-shadow(0 0 6px rgba(76,175,130,0.4));
+}
+
+.footer-brand-desc {
+  font-size: 0.84rem;
+  color: rgba(240, 237, 228, 0.45);
+  line-height: 1.7;
+  margin-bottom: 24px;
+  max-width: 280px;
+}
+
+.social-icons {
+  display: flex;
+  gap: 10px;
+}
+
+.social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(240, 237, 228, 0.6);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.social-icon:hover {
+  background: rgba(76,175,130,0.12);
+  border-color: rgba(76,175,130,0.3);
+  color: #4CAF82;
+  transform: translateY(-2px);
+}
+
+/* Link groups */
+.footer-links-heading {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: rgba(240, 237, 228, 0.4);
+  margin-bottom: 16px;
+}
+
+.footer-links-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-links-list a {
+  font-size: 0.875rem;
+  color: rgba(240, 237, 228, 0.55);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-links-list a:hover {
+  color: #C9A84C;
+}
+
+/* Bottom */
+.footer-bottom {
+  padding-top: 28px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.footer-bottom p {
+  font-size: 0.8rem;
+  color: rgba(240, 237, 228, 0.3);
+}
+
+.footer-disclaimer {
+  max-width: 480px;
+  text-align: right;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-bottom {
+    /* flex-direction: column; */
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+    margin-top: 40px !important;
+  }
+
+  .footer-disclaimer {
+    padding-top: 28px !important;
+    border-top: 1px solid rgba(255,255,255,0.06) !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    flex-wrap: wrap !important;
+    text-align: left;
+  }
+}

@@ -11,9 +11,9 @@ import Dashboard from "./components/Dashboard";
 import Consultation from "./components/Consultation";
 import ProtectedRoute from "./components/ProtectedRoute";
 import MyConsultations from "./components/MyConsultations";
-import About from "./components/About"; // 1. About component import kiya
+import About from "./components/Ayurabout"; // 1. About component import kiya
 
-import "./style.css";
+import "./App.css";
 
 export default function App() {
   return (
