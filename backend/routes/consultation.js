@@ -1,106 +1,149 @@
 const express = require("express");
 const router = express.Router();
-const jwt = require("jsonwebtoken");
+const multer = require("multer");
+const fs = require("fs");
 const Consultation = require("../models/Consultation");
+const auth = require("../middleware/auth");
 
-/*
-  AUTHENTICATION MIDDLEWARE
-  This middleware verifies the JWT token sent in the request header.
-  If the token is valid, the userId is extracted and attached to the request.
-*/
-const auth = (req, res, next) => {
+if (!fs.existsSync("uploads/")) {
+  fs.mkdirSync("uploads/");
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => { cb(null, "uploads/"); },
+  filename: (req, file, cb) => { cb(null, `${Date.now()}-${file.originalname}`); }
+});
+const upload = multer({ storage: storage });
+
+// --- FETCH DOCTOR REQUESTS (FIXED FOR PREFIX MISMATCH) ---
+router.get("/doctor-requests", auth, async (req, res) => {
   try {
+    const doctorName = req.query.name; 
+    if (!doctorName) return res.status(400).json({ message: "Doctor name required" });
 
-    // Get Authorization header from request
-    const authHeader = req.headers.authorization;
+    const baseName = doctorName.replace(/^Dr\.\s+/i, ""); 
 
-    // Check if header exists
-    if (!authHeader) {
-      console.log("No Authorization Header");
-      return res.status(401).json({ message: "No Token" });
-    }
+    const requests = await Consultation.find({
+      $or: [
+        { practitioner: doctorName },
+        { practitioner: baseName },
+        { practitioner: new RegExp(baseName, 'i') }
+      ]
+    }).sort({ createdAt: -1 });
 
-    // Extract token from "Bearer TOKEN"
-    const token = authHeader.split(" ")[1];
-
-    // Check if token exists
-    if (!token) {
-      console.log("Token missing");
-      return res.status(401).json({ message: "Invalid Token" });
-    }
-
-    // Verify token using secret key
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // Attach user ID to request object
-    req.userId = decoded.id;
-
-    // Continue to next middleware or route
-    next();
-
+    res.json(requests);
   } catch (err) {
-
-    console.log("AUTH ERROR:", err.message);
-    return res.status(401).json({ message: "Token Failed" });
-
+    console.error("Doctor fetch error:", err);
+    res.status(500).json({ message: "Error fetching requests" });
   }
-};
+});
 
-/*
-  POST /api/consultation
-  Saves a new consultation booking for the authenticated user.
-*/
-router.post("/", auth, async (req, res) => {
+// --- A. SMART FETCH: Busy Slots ---
+router.get("/busy-slots", async (req, res) => {
   try {
+    const { practitioner, date } = req.query; 
+    if (!practitioner || !date) return res.json([]);
 
-    // Log request data for debugging
-    console.log("📥 BODY:", req.body);
-    console.log("👤 USER:", req.userId);
+    const parts = date.split('-'); 
+    const altDate = `${parts[1]}/${parts[2]}/${parts[0]}`; 
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
-    // Create and save consultation record in database
-    const saved = await Consultation.create({
-      userId: req.userId,
-      name: req.body.name,
-      age: req.body.age,
-      concern: req.body.concern,
-      practitioner: req.body.practitioner,
-      date: req.body.date,
-      time: req.body.time,
+    const busyBookings = await Consultation.find({
+      practitioner: practitioner,
+      $or: [{ date: date }, { date: altDate }],
+      $or: [
+        { status: { $in: ["Confirmed", "Completed"] } }, 
+        { status: "Reserved", createdAt: { $gte: twentyFourHoursAgo } } 
+      ]
+    }).select("time");
+
+    const busyTimes = busyBookings.map(b => b.time.trim());
+    res.json(busyTimes);
+  } catch (err) {
+    res.status(500).json([]);
+  }
+});
+
+// --- B. Book a Consultation ---
+router.post("/", auth, upload.single("report"), async (req, res) => {
+  try {
+    const { date, time, practitioner } = req.body;
+    const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+    const existingSlot = await Consultation.findOne({
+      practitioner,
+      date,
+      time,
+      $or: [
+        { status: { $in: ["Confirmed", "Completed"] } },
+        { status: "Reserved", createdAt: { $gte: twentyFourHoursAgo } }
+      ]
     });
 
-    // Send saved consultation as response
-    res.json(saved);
+    if (existingSlot) {
+      return res.status(400).json({ message: "This slot is currently unavailable." });
+    }
 
+    const newBooking = new Consultation({
+      ...req.body,
+      userId: req.userId || req.user?.id,
+      reportFile: req.file ? req.file.path : null,
+      status: "Reserved",
+      createdAt: new Date()
+    });
+
+    await newBooking.save();
+    res.status(201).json({ message: "Slot reserved!", booking: newBooking });
   } catch (err) {
-
-    console.log("SAVE ERROR:", err.message);
-    res.status(500).json({ message: "Error saving consultation" });
-
+    console.error("Booking error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
-/*
-  GET /api/consultation
-  Fetches all consultations booked by the authenticated user.
-*/
-router.get("/", auth, async (req, res) => {
+// --- C. My Bookings (For Patient) ---
+router.get("/my-bookings", auth, async (req, res) => {
   try {
+    const bookings = await Consultation.find({ userId: req.userId || req.user?.id }).sort({ createdAt: -1 });
+    res.json(bookings);
+  } catch (err) { res.status(500).json({ message: "Error" }); }
+});
 
-    // Find consultations belonging to the logged-in user
-    const data = await Consultation
-      .find({ userId: req.userId })
-      .sort({ createdAt: -1 }); // Latest first
+// --- D. Update Status (General) ---
+router.put("/update-status/:id", auth, async (req, res) => {
+  try {
+    const updated = await Consultation.findByIdAndUpdate(
+      req.params.id, 
+      { status: req.body.status }, 
+      { new: true }
+    );
+    res.json(updated);
+  } catch (err) { res.status(500).send(err); }
+});
 
-    // Send consultations list
-    res.json(data);
+// --- E. UPDATE PRESCRIPTION & COMPLETE (NEW ROUTE) ---
+router.put("/update-prescription/:id", auth, async (req, res) => {
+  try {
+    const { medicines, lifestyle, notes, status } = req.body;
+    const updated = await Consultation.findByIdAndUpdate(
+      req.params.id,
+      { 
+        medicines, 
+        lifestyle, 
+        notes, 
+        status: status || "Completed" 
+      },
+      { new: true }
+    );
 
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Consultation not found" });
+    }
+
+    res.json({ success: true, message: "Prescription updated successfully!", data: updated });
   } catch (err) {
-
-    console.log("FETCH ERROR:", err.message);
-    res.status(500).json({ message: "Error fetching consultations" });
-
+    console.error("Prescription Save Error:", err);
+    res.status(500).json({ success: false, message: "Server error saving prescription" });
   }
 });
 
-// Export router to use in main server file
 module.exports = router;

@@ -1,48 +1,54 @@
-import React from "react";
-import { useLocation, useNavigate, Link } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import Ayurnavbar from "./Ayurnavbar"; 
 import "../style.css";
 
 export default function Result() {
   const navigate = useNavigate();
   const location = useLocation();
   const data = location.state;
+  
+  // Navbar ke liye user data state
+  const [user, setUser] = useState(null);
 
-  // Function to handle session logout
+  useEffect(() => {
+    // 1. Sync User for Navbar Profile Icon
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.error("User sync error", e);
+      }
+    }
+  }, []);
+
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.clear();
     navigate("/login");
   };
 
-  const isActive = (path) => location.pathname === path;
-
-// Fallback if user accesses page directly without form data
-if (!data) {
-  return (
-    <div className="home-page-wrapper">
-      <div style={{ textAlign: "center", padding: "100px" }}>
-        <h1 className="rx-main-title">No Result Found</h1>
-        <p style={{ marginTop: "10px", color: "#ccc" }}>
-          Please complete the Dosha assessment first.
-        </p>
-
-        <button
-          className="parrot-action-btn-large"
-          onClick={() => navigate("/predict-dosha")}
-        >
-          Go Back
-        </button>
+  if (!data) {
+    return (
+      <div className="home-page-wrapper">
+        <Ayurnavbar user={user} onLogout={handleLogout} />
+        <div style={{ textAlign: "center", padding: "150px 20px" }}>
+          <h1 className="rx-main-title">No Result Found</h1>
+          <p style={{ marginTop: "10px", color: "#ccc" }}>
+            Please complete the Dosha assessment first.
+          </p>
+          <button className="parrot-action-btn-large" onClick={() => navigate("/predict-dosha")}>Go Back</button>
+        </div>
       </div>
-    </div>
-  );
-}
+    );
+  }
 
- const { result: mlData, details, type, refId } = data;
+  // Destructuring logic
+  const { result: mlData, details, type, refId } = data;
+  const result = typeof mlData === 'string' ? mlData : (mlData?.predicted_dosha || "Unknown");
+  const disease = mlData?.predicted_disease || null;
+  const today = new Date().toLocaleDateString("en-GB");
 
- const result = mlData?.predicted_dosha || "Unknown";
- const disease = mlData?.predicted_disease;
- const today = new Date().toLocaleDateString("en-GB");
-
-  // Recommendation logic based on Diagnosis result
   const doshaContent = {
     Vata: {
       diet: ["Warm, cooked grains", "Healthy fats like Ghee", "Avoid cold/raw foods"],
@@ -66,11 +72,11 @@ if (!data) {
     },
   };
 
-  // Maps "Vata Imbalance Detected" or similar strings to the correct guide keys
   const getGuide = () => {
-    if (result?.toLowerCase().includes("vata")) return doshaContent.Vata;
-    if (result?.toLowerCase().includes("pitta")) return doshaContent.Pitta;
-    if (result?.toLowerCase().includes("kapha")) return doshaContent.Kapha;
+    const resStr = result?.toLowerCase() || "";
+    if (resStr.includes("vata")) return doshaContent.Vata;
+    if (resStr.includes("pitta")) return doshaContent.Pitta;
+    if (resStr.includes("kapha")) return doshaContent.Kapha;
     return doshaContent.Balanced;
   };
 
@@ -78,27 +84,9 @@ if (!data) {
 
   return (
     <div className="home-page-wrapper">
-      {/* Universal Capsule Navbar */}
-      <nav className="home-nav-dark">
-        <div className="logo-area" onClick={() => navigate("/home")}>
-          <img src="/images/logo.jpeg" alt="Logo" className="logo-img" />
-          <span className="brand-name-light">AyurSage</span>
-        </div>
-        <div className="nav-center-links">
-          <Link to="/home" className={`nav-box ${isActive("/home") ? "active" : ""}`}>Home</Link>
-          <Link to="/predict-prakriti" className={`nav-box ${isActive("/predict-prakriti") ? "active" : ""}`}>Prakriti</Link>
-          <Link to="/predict-dosha" className={`nav-box ${isActive("/predict-dosha") ? "active" : ""}`}>Dosha</Link>
-          <Link to="/consultation" className={`nav-box ${isActive("/consultation") ? "active" : ""}`}>Consultations</Link>
-          <Link to="/dashboard" className={`nav-box ${isActive("/dashboard") ? "active" : ""}`}>Dashboard</Link>
-          <Link to="/my-consultations" className={`nav-box ${isActive("/my-consultations") ? "active" : ""}`}>Booked</Link>
-          <Link to="/about" className={`nav-box ${isActive("/about") ? "active" : ""}`}>About Us</Link>
-        </div>
-        <div className="nav-right">
-          <button onClick={handleLogout} className="logout-btn-light">Logout</button>
-        </div>
-      </nav>
+      {/* ── UPDATED: Ayurnavbar globally integrated ── */}
+      <Ayurnavbar user={user} onLogout={handleLogout} />
 
-      {/* Main Page Layout */}
       <div
         className="about-direct-layout"
         style={{
@@ -109,12 +97,11 @@ if (!data) {
           minHeight: "100vh",
           display: "flex",
           justifyContent: "center",
-          padding: "120px 5% 80px 5%",
+          padding: "120px 5% 80px 5%", 
           boxSizing: "border-box",
         }}
       >
         <div className="prescription-container">
-          {/* Report Header */}
           <header className="rx-header">
             <div className="rx-title-area">
               <h1 className="rx-main-title">Prescription Report</h1>
@@ -128,7 +115,6 @@ if (!data) {
             </div>
           </header>
 
-          {/* Section 1: Patient Profile */}
           <section className="rx-patient-box">
             <div className="rx-meta-grid">
               <div className="rx-meta-item">
@@ -146,56 +132,34 @@ if (!data) {
             </div>
           </section>
 
-          {/* Section 2: Lifestyle Vitals */}
           <div className="rx-vitals-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
-            <div className="rx-vital-card">
-              <span>Season</span>
-              <h3>{details?.season || "--"}</h3>
-            </div>
-            <div className="rx-vital-card">
-              <span>Diet</span>
-              <h3>{details?.diet || "--"}</h3>
-            </div>
-            <div className="rx-vital-card">
-              <span>Sleep</span>
-              <h3>{details?.sleep || "--"}</h3>
-            </div>
-            <div className="rx-vital-card">
-              <span>Stress</span>
-              <h3>{details?.stress || "--"}</h3>
-            </div>
+            <div className="rx-vital-card"><span>Season</span><h3>{details?.season || "--"}</h3></div>
+            <div className="rx-vital-card"><span>Diet</span><h3>{details?.diet || "--"}</h3></div>
+            <div className="rx-vital-card"><span>Sleep</span><h3>{details?.sleep || "--"}</h3></div>
+            <div className="rx-vital-card"><span>Stress</span><h3>{details?.stress || "--"}</h3></div>
           </div>
 
-          {/* Section 3: Diagnosis & Symptoms */}
           <div className="rx-complaints">
             <p className="rx-sub-label">Diagnosis Result</p>
             <h2 className="text-diagnosis-highlight" style={{ fontSize: "1.8rem", marginBottom: "15px" }}>
               {result}
             </h2>
-          
 
-        {/* DISEASE DISPLAY */}
-        {disease && (
+            {disease && (
               <>
-                <p className="rx-sub-label" style={{ marginTop: "10px" }}>
-                  Most Likely Disease
-                </p>
-
-                <h2 className="text-diagnosis-highlight">
-                  {disease}
-                </h2>
+                <p className="rx-sub-label" style={{ marginTop: "10px" }}>Most Likely Disease</p>
+                <h2 className="text-diagnosis-highlight">{disease}</h2>
               </>
             )}
-            <br></br>
+            <br />
             <p className="rx-sub-label">Chief Complaints / Symptoms</p>
             <p className="about-para-large" style={{ fontSize: "1.05rem", fontStyle: "italic", color: "#fff" }}>
               "{details?.symptoms || "No specific symptoms reported."}"
             </p>
           </div>
 
-          <hr className="rx-divider" style={{ opacity: "0.1", margin: "30px 0" }} />
+          <hr style={{ opacity: "0.1", margin: "30px 0" }} />
 
-          {/* Section 4: Ayurvedic Recommendations */}
           <div className="rx-recommendations">
             <div className="rx-column">
               <p className="rx-section-title">Ahara (Dietary)</p>
@@ -211,21 +175,19 @@ if (!data) {
             </div>
           </div>
 
-          {/* Section 5: Exercise Therapy */}
           <div className="rx-exercise-section" style={{ marginTop: "30px" }}>
             <p className="rx-sub-label">Vyayama (Exercise Therapy)</p>
-            <div className="rx-exercise-grid">
+            <div className="rx-exercise-grid" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
               {guide.exercises.map((ex, i) => (
-                <div key={i} className="rx-ex-chip">{ex}</div>
+                <div key={i} className="rx-ex-chip" style={{ background: 'rgba(167, 255, 131, 0.1)', padding: '5px 15px', borderRadius: '20px', color: '#A7FF83', border: '1px solid rgba(167, 255, 131, 0.3)' }}>{ex}</div>
               ))}
             </div>
           </div>
 
-          {/* Section 6: Footer Actions */}
-          <div className="rx-footer-btns">
-            <button className="rx-btn outline" onClick={() => navigate(-1)}>Re-Analyze</button>
-            <button className="rx-btn primary" onClick={() => window.print()}>Print Report</button>
-            <button className="rx-btn accent" onClick={() => navigate("/consultation")}>Consult Doctor</button>
+          <div className="rx-footer-btns" style={{ display: 'flex', gap: '15px', marginTop: '40px' }}>
+            <button className="rx-btn outline" style={{ flex: 1 }} onClick={() => navigate(-1)}>Re-Analyze</button>
+            <button className="rx-btn primary" style={{ flex: 1 }} onClick={() => window.print()}>Print Report</button>
+            <button className="rx-btn accent" style={{ flex: 1 }} onClick={() => navigate("/consultation")}>Consult Doctor</button>
           </div>
         </div>
       </div>

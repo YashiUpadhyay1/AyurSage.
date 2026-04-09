@@ -104,14 +104,14 @@ const AyurNavbar = ({ user, onLogout }) => {
                   className="ayur-dropdown-item"
                   onClick={() => setProfileOpen(false)}
                 >
-                  <span>📊</span> Dashboard
+                   Dashboard
                 </Link>
                 <Link
                   to="/my-consultations"
                   className="ayur-dropdown-item"
                   onClick={() => setProfileOpen(false)}
                 >
-                  <span>📅</span> My Bookings
+                  My Bookings
                 </Link>
 
                 <hr className="ayur-dropdown-hr" />
@@ -120,7 +120,7 @@ const AyurNavbar = ({ user, onLogout }) => {
                   className="ayur-dropdown-item ayur-dropdown-logout"
                   onClick={onLogout}
                 >
-                  <span>🚪</span> Sign Out
+                  Sign Out
                 </button>
               </div>
             </div>

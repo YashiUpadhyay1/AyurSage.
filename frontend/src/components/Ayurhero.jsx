@@ -25,7 +25,7 @@ const AyurHero = () => {
       <div className="hero-content">
         <div className="hero-badge">
           <span className="hero-badge-dot" />
-          AI-Powered Ayurvedic Wisdom
+          Modern Ayurvedic Wisdom
         </div>
 
         <h1 className="hero-heading">
@@ -36,7 +36,7 @@ const AyurHero = () => {
 
         <p className="hero-subtext">
           Discover your unique mind-body constitution through ancient Ayurvedic
-          science, powered by modern AI. Get personalized insights on your
+          science, powered by modern ML. Get personalized insights on your
           Dosha, Prakriti, and holistic wellness path — in minutes.
         </p>
 
@@ -78,8 +78,8 @@ const AyurHero = () => {
           </div>
           <div className="hero-stat-divider" />
           <div className="hero-stat">
-            <span className="stat-value">AI</span>
-            <span className="stat-label">Powered Insights</span>
+            <span className="stat-value">ML</span>
+            <span className="stat-label">Driven Insights</span>
           </div>
         </div>
       </div>

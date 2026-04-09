@@ -1,21 +1,16 @@
-import express from "express";
-import Assessment from "../models/Assessment.js";
-import jwt from "jsonwebtoken";
-
+const express = require("express");
 const router = express.Router();
+const Assessment = require("../models/Assesment"); // Matches your filename Assesment.js
+const auth = require("../middleware/auth");
 
 // Save result
-router.post("/save", async (req, res) => {
+router.post("/save", auth, async (req, res) => {
   try {
-    const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, "secret123");
-
     const doc = await Assessment.create({
-      userId: decoded.id,
+      userId: req.userId,
       dosha: req.body.dosha,
       data: req.body.data,
     });
-
     res.json({ success: true, saved: doc });
   } catch (err) {
     res.status(500).json({ error: "Failed to save" });
@@ -23,13 +18,13 @@ router.post("/save", async (req, res) => {
 });
 
 // Fetch history
-router.get("/history", async (req, res) => {
-  const token = req.headers.authorization.split(" ")[1];
-  const decoded = jwt.verify(token, "secret123");
-
-  const entries = await Assessment.find({ userId: decoded.id }).sort({ createdAt: -1 });
-
-  res.json(entries);
+router.get("/history", auth, async (req, res) => {
+  try {
+    const entries = await Assessment.find({ userId: req.userId }).sort({ createdAt: -1 });
+    res.json(entries);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch history" });
+  }
 });
 
-export default router;
+module.exports = router;

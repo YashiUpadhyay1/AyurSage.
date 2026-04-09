@@ -3,7 +3,8 @@ const mongoose = require("mongoose");
 const DoshaSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   form: { type: Object, required: true },
-  result: { type: String, required: true },
+  result: { type: String, required: true }, // Yeh Dosha hai
+  disease: { type: String },                
   date: { type: Date, default: Date.now }
 });
 

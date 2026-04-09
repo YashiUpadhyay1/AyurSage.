@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link, useLocation } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import Ayurnavbar from "./Ayurnavbar"; 
 import "../style.css";
 
 export default function PredictDosha() {
@@ -10,6 +11,9 @@ export default function PredictDosha() {
   const [step, setStep] = useState(1);
   const [displayText, setDisplayText] = useState("");
   const fullText = "Identify current imbalances in your lifestyle and health factors";
+
+  // Navbar ke liye user state
+  const [user, setUser] = useState(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -23,13 +27,15 @@ export default function PredictDosha() {
     symptoms: ""
   });
 
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  };
-
+  // User data aur animation setup
   useEffect(() => {
+    // Navbar ke liye user fetch
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try { setUser(JSON.parse(savedUser)); } catch (e) { setUser(null); }
+    }
+
+    // Typewriter effect logic
     let i = 0;
     const interval = setInterval(() => {
       setDisplayText(fullText.slice(0, i + 1));
@@ -38,6 +44,11 @@ export default function PredictDosha() {
     }, 30);
     return () => clearInterval(interval);
   }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
 
   const nextStep = () => setStep((prev) => prev + 1);
   const prevStep = () => setStep((prev) => prev - 1);
@@ -54,12 +65,8 @@ export default function PredictDosha() {
       return;
     }
 
-    if (!/[a-zA-Z]/.test(form.symptoms)) {
-      alert("Enter meaningful symptoms (only random characters not allowed)");
-      return;
-    }
-
     try {
+      // 1. Get Prediction from ML
       const response = await axios.post(
         "http://localhost:5000/api/ml/predict",
         {
@@ -83,9 +90,14 @@ export default function PredictDosha() {
         return;
       }
 
+      // 2. Save to Database
       await axios.post(
         "http://localhost:5000/api/dosha",
-        { result: data.predicted_dosha, details: form },
+        { 
+          result: data.predicted_dosha, 
+          disease: data.predicted_disease, 
+          details: form 
+        },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
@@ -108,16 +120,9 @@ export default function PredictDosha() {
 
   return (
     <div className="home-page-wrapper">
-      <nav className="home-nav-dark">
-              {/* Navbar Same As Above */}
-              <div className="nav-center-links">
-                <Link to="/home" className={`nav-box ${isActive("/home") ? "active" : ""}`}>Home</Link>
-                <Link to="/dashboard" className={`nav-box ${isActive("/dashboard") ? "active" : ""}`}>Dashboard</Link>
-              </div>
-              <div className="nav-right">
-                <button onClick={handleLogout} className="logout-btn-light">Logout</button>
-              </div>
-            </nav>
+      {/* ── UPDATED: Global AyurNavbar added here ── */}
+      <Ayurnavbar user={user} onLogout={handleLogout} />
+
       <div
         className="about-direct-layout"
         style={{
@@ -130,7 +135,7 @@ export default function PredictDosha() {
           width: '100%',
           display: 'flex',
           justifyContent: 'center',
-          padding: '100px 5% 80px 5%',
+          padding: '120px 5% 80px 5%', // Padding top 120px for Navbar safety
           boxSizing: 'border-box'
         }}
       >
