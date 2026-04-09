@@ -49,42 +49,45 @@ export default function Result() {
   const disease = mlData?.predicted_disease || null;
   const today = new Date().toLocaleDateString("en-GB");
 
-  const doshaContent = {
-    Vata: {
-      diet: ["Warm, cooked grains", "Healthy fats like Ghee", "Avoid cold/raw foods"],
-      lifestyle: ["Consistent sleep routine", "Daily oil massage (Abhyanga)", "Keep body warm"],
-      exercises: ["Slow Yoga (Hatha)", "Nature Walks", "Grounding Meditation"],
-    },
-    Pitta: {
-      diet: ["Cooling fruits (Melons, Pears)", "Coconut water", "Avoid spicy/fried foods"],
-      lifestyle: ["Avoid midday sun", "Calming meditation", "Stay in cool environments"],
-      exercises: ["Swimming", "Moonlit walks", "Gentle Stretching"],
-    },
-    Kapha: {
-      diet: ["Light, spicy foods", "Warm ginger tea", "Avoid dairy and sweets"],
-      lifestyle: ["Wake up before sunrise", "Avoid daytime napping", "Dry heat therapy"],
-      exercises: ["Sun Salutations (Surya Namaskar)", "Vinyasa Flow", "Active Aerobics"],
-    },
-    Balanced: {
-      diet: ["Seasonal organic meals", "Balanced Macro-nutrients"],
-      lifestyle: ["Regular daily routine", "Stress management"],
-      exercises: ["Brisk walking", "Moderate Yoga"],
-    },
-  };
+  // const doshaContent = {
+  //   Vata: {
+  //     diet: ["Warm, cooked grains", "Healthy fats like Ghee", "Avoid cold/raw foods"],
+  //     lifestyle: ["Consistent sleep routine", "Daily oil massage (Abhyanga)", "Keep body warm"],
+  //     exercises: ["Slow Yoga (Hatha)", "Nature Walks", "Grounding Meditation"],
+  //   },
+  //   Pitta: {
+  //     diet: ["Cooling fruits (Melons, Pears)", "Coconut water", "Avoid spicy/fried foods"],
+  //     lifestyle: ["Avoid midday sun", "Calming meditation", "Stay in cool environments"],
+  //     exercises: ["Swimming", "Moonlit walks", "Gentle Stretching"],
+  //   },
+  //   Kapha: {
+  //     diet: ["Light, spicy foods", "Warm ginger tea", "Avoid dairy and sweets"],
+  //     lifestyle: ["Wake up before sunrise", "Avoid daytime napping", "Dry heat therapy"],
+  //     exercises: ["Sun Salutations (Surya Namaskar)", "Vinyasa Flow", "Active Aerobics"],
+  //   },
+  //   Balanced: {
+  //     diet: ["Seasonal organic meals", "Balanced Macro-nutrients"],
+  //     lifestyle: ["Regular daily routine", "Stress management"],
+  //     exercises: ["Brisk walking", "Moderate Yoga"],
+  //   },
+  // };
 
-  const getGuide = () => {
-    const resStr = result?.toLowerCase() || "";
-    if (resStr.includes("vata")) return doshaContent.Vata;
-    if (resStr.includes("pitta")) return doshaContent.Pitta;
-    if (resStr.includes("kapha")) return doshaContent.Kapha;
-    return doshaContent.Balanced;
-  };
+  // const getGuide = () => {
+  //   const resStr = result?.toLowerCase() || "";
+  //   if (resStr.includes("vata")) return doshaContent.Vata;
+  //   if (resStr.includes("pitta")) return doshaContent.Pitta;
+  //   if (resStr.includes("kapha")) return doshaContent.Kapha;
+  //   return doshaContent.Balanced;
+  // };
 
-  const guide = getGuide();
+  // const guide = getGuide();
+
+  // Treatment from ML
+const treatment = mlData?.treatment || null;
 
   return (
     <div className="home-page-wrapper">
-      {/* ── UPDATED: Ayurnavbar globally integrated ── */}
+      {/* Global Ayurnavbar */}
       <Ayurnavbar user={user} onLogout={handleLogout} />
 
       <div
@@ -160,29 +163,68 @@ export default function Result() {
 
           <hr style={{ opacity: "0.1", margin: "30px 0" }} />
 
-          <div className="rx-recommendations">
-            <div className="rx-column">
-              <p className="rx-section-title">Ahara (Dietary)</p>
-              <ul className="rx-list">
-                {guide.diet.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-            </div>
-            <div className="rx-column">
-              <p className="rx-section-title">Vihara (Lifestyle)</p>
-              <ul className="rx-list">
-                {guide.lifestyle.map((item, i) => <li key={i}>{item}</li>)}
-              </ul>
-            </div>
-          </div>
+          {treatment ? (
+  <>
+    <div className="rx-recommendations">
+      <div className="rx-column">
+        <p className="rx-section-title">Ahara (Dietary Plan)</p>
+        <ul className="rx-list">
+          {treatment.diet?.split(",").map((item, i) => (
+            <li key={i}>{item.trim()}</li>
+          ))}
+        </ul>
+      </div>
+      <div className="rx-column">
+        <p className="rx-section-title">Chikitsa (Therapy)</p>
+        <ul className="rx-list">
+          {treatment.therapy?.split(",").map((item, i) => (
+            <li key={i}>{item.trim()}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
 
-          <div className="rx-exercise-section" style={{ marginTop: "30px" }}>
-            <p className="rx-sub-label">Vyayama (Exercise Therapy)</p>
-            <div className="rx-exercise-grid" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-              {guide.exercises.map((ex, i) => (
-                <div key={i} className="rx-ex-chip" style={{ background: 'rgba(167, 255, 131, 0.1)', padding: '5px 15px', borderRadius: '20px', color: '#A7FF83', border: '1px solid rgba(167, 255, 131, 0.3)' }}>{ex}</div>
-              ))}
-            </div>
+    <div style={{ marginTop: "25px" }}>
+      <p className="rx-sub-label">Aushadhi (Medicines)</p>
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+        {treatment.medicine?.split(",").map((med, i) => (
+          <div key={i} style={{
+            background: "rgba(255, 153, 51, 0.1)",
+            padding: "5px 15px",
+            borderRadius: "20px",
+            color: "#FF9933",
+            border: "1px solid rgba(255, 153, 51, 0.3)",
+            fontSize: "0.9rem"
+          }}>
+            {med.trim()}
           </div>
+        ))}
+      </div>
+    </div>
+
+    <div className="rx-exercise-section" style={{ marginTop: "25px" }}>
+      <p className="rx-sub-label">Vyayama (Exercise Therapy)</p>
+      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+        {treatment.exercise?.split(",").map((ex, i) => (
+          <div key={i} style={{
+            background: "rgba(167, 255, 131, 0.1)",
+            padding: "5px 15px",
+            borderRadius: "20px",
+            color: "#A7FF83",
+            border: "1px solid rgba(167, 255, 131, 0.3)",
+            fontSize: "0.9rem"
+          }}>
+            {ex.trim()}
+          </div>
+        ))}
+      </div>
+    </div>
+  </>
+) : (
+  <p style={{ color: "#ccc", textAlign: "center", padding: "20px" }}>
+    No treatment data available.
+  </p>
+)}
 
           <div className="rx-footer-btns" style={{ display: 'flex', gap: '15px', marginTop: '40px' }}>
             <button className="rx-btn outline" style={{ flex: 1 }} onClick={() => navigate(-1)}>Re-Analyze</button>
