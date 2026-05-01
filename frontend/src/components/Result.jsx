@@ -36,21 +36,20 @@ export default function Result() {
     );
   }
 
-  // SYNC LOGIC: Mapping data from both ML Response and Database Records[cite: 4, 8, 9]
+  // Syncing data from both ML Response and Database Records[cite: 4, 8, 9]
   const { result: mlData, details, type, refId } = data;
   
-  // result can be a string (from history) or predicted_dosha (from ML)[cite: 2, 4]
-  const result = mlData?.predicted_dosha || mlData?.result || (typeof mlData === 'string' ? mlData : "Unknown");
+  // result mapping[cite: 2, 4]
+  const result = mlData?.predicted_dosha || mlData?.dosha || mlData?.result || (typeof mlData === 'string' ? mlData : "Unknown");
   const disease = mlData?.predicted_disease || mlData?.disease || "Not Identified";
   const today = details?.date ? new Date(details.date).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
 
-  // Get dynamic treatment saved in DB
+  // Get dynamic treatment saved in DB[cite: 4, 8]
   const treatment = mlData?.treatment || null;
 
   useEffect(() => {
     const saveResultToDB = async () => {
       if (type === "History Report") return;
-      // Prevent duplicates by checking symptoms string
       if (localStorage.getItem("lastResultSaved") === JSON.stringify(details?.symptoms)) return;
 
       const token = localStorage.getItem("token");
@@ -87,7 +86,7 @@ export default function Result() {
         <div className="prescription-container">
           <header className="rx-header">
             <div className="rx-title-area">
-              <h1 className="rx-main-title">Prescription Report</h1>
+              <h1 className="rx-main-title">Ayurvedic Report</h1>
               <p className="rx-type-tag">{type?.toUpperCase() || "DOSHA"} ANALYSIS</p>
             </div>
             <div className="rx-date-id">
@@ -119,7 +118,7 @@ export default function Result() {
             <h2 className="text-diagnosis-highlight">{disease}</h2>
             
             <p className="rx-sub-label" style={{marginTop: '20px'}}>Chief Complaints / Symptoms</p>
-            <p style={{ fontStyle: "italic", color: "#fff" }}>"{details?.symptoms || "No specific symptoms reported."}"</p>
+            <p style={{ fontStyle: "italic", color: "#fff" }}>"{details?.symptoms || "No symptoms reported."}"</p>
           </div>
 
           <hr style={{ opacity: "0.1", margin: "30px 0" }} />
@@ -130,13 +129,13 @@ export default function Result() {
                 <div className="rx-column">
                   <p className="rx-section-title">Ahara (Dietary Plan)</p>
                   <ul className="rx-list">
-                    {treatment.diet ? treatment.diet.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Dynamic diet plan following...</li>}
+                    {treatment.diet ? treatment.diet.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Plan details in history...</li>}
                   </ul>
                 </div>
                 <div className="rx-column">
                   <p className="rx-section-title">Chikitsa (Therapy)</p>
                   <ul className="rx-list">
-                    {treatment.therapy ? treatment.therapy.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Therapy suggestions...</li>}
+                    {treatment.therapy ? treatment.therapy.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Therapy details in history...</li>}
                   </ul>
                 </div>
               </div>
@@ -154,7 +153,7 @@ export default function Result() {
             </>
           ) : (
             <div style={{textAlign: 'center', padding: '20px', border: '1px dashed #A7FF83', borderRadius: '10px'}}>
-               <p style={{color: '#A7FF83'}}>Personalized treatment plan from history loaded.</p>
+               <p style={{color: '#A7FF83'}}>Detailed treatment plan is available in the medical history record.</p>
             </div>
           )}
 
