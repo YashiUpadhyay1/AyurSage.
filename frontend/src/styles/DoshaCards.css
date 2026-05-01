@@ -1,0 +1,241 @@
+/* ============================================
+   DOSHACARDS.CSS
+   ============================================ */
+
+.dosha-section {
+  padding: var(--section-py) 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(76, 175, 130, 0.04) 50%,
+    transparent 100%
+  );
+}
+
+.dosha-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* Individual Card */
+.dosha-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 24px;
+  padding: 28px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+  opacity: 0;
+  transform: translateY(40px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.dosha-card-visible {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s ease, transform 0.6s ease,
+    box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.dosha-card:hover {
+  transform: translateY(-6px);
+  border-color: var(--dosha-color, rgba(255,255,255,0.2));
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3), 0 0 40px rgba(from var(--dosha-color) r g b / 0.15);
+}
+
+.dosha-card:nth-child(1) { transition-delay: 0.1s; }
+.dosha-card:nth-child(2) { transition-delay: 0.2s; }
+.dosha-card:nth-child(3) { transition-delay: 0.3s; }
+
+/* Glow */
+.card-glow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: var(--dosha-color, rgba(255,255,255,0.1));
+  opacity: 0.08;
+  filter: blur(40px);
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
+.dosha-card:hover .card-glow {
+  opacity: 0.18;
+}
+
+/* Header */
+.dosha-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.dosha-icon-wrap {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: var(--dosha-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid rgba(from var(--dosha-color) r g b / 0.3);
+}
+
+.dosha-icon {
+  font-size: 1.5rem;
+}
+
+.dosha-card-name {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #F0EDE4;
+  line-height: 1;
+}
+
+.dosha-element {
+  font-size: 0.73rem;
+  font-weight: 500;
+  color: var(--dosha-color);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 4px;
+  display: block;
+}
+
+.dosha-emoji-float {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 2rem;
+  opacity: 0.15;
+  transition: opacity 0.3s ease;
+}
+
+.dosha-card:hover .dosha-emoji-float {
+  opacity: 0.3;
+}
+
+.dosha-tagline {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--dosha-color);
+  margin-bottom: 10px;
+}
+
+.dosha-short {
+  font-size: 0.9rem;
+  color: rgba(240, 237, 228, 0.6);
+  line-height: 1.65;
+  margin-bottom: 18px;
+}
+
+/* Traits */
+.dosha-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.trait-chip {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--dosha-color);
+  background: rgba(from var(--dosha-color) r g b / 0.1);
+  border: 1px solid rgba(from var(--dosha-color) r g b / 0.25);
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+/* Expand Button */
+.dosha-expand-btn {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--dosha-color);
+  background: rgba(from var(--dosha-color) r g b / 0.08);
+  border: 1px solid rgba(from var(--dosha-color) r g b / 0.2);
+  padding: 8px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.dosha-expand-btn:hover {
+  background: rgba(from var(--dosha-color) r g b / 0.15);
+}
+
+/* Expanded content */
+.dosha-expanded-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.5s ease;
+}
+
+.dosha-expanded-open {
+  max-height: 600px;
+}
+
+.expand-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding-top: 18px;
+}
+
+.expand-item {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.expand-item-full {
+  grid-column: 1 / -1;
+}
+
+.expand-label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(240, 237, 228, 0.45);
+  margin-bottom: 6px;
+}
+
+.expand-item p {
+  font-size: 0.82rem;
+  color: rgba(240, 237, 228, 0.72);
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .dosha-cards-grid {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 900px) {
+  .dosha-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 100%;
+  }
+}

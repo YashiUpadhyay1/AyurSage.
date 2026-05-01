@@ -1,0 +1,205 @@
+/* ============================================
+   FEATURECARDS.CSS
+   ============================================ */
+
+.features-section {
+  padding: var(--section-py) 0;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(201, 168, 76, 0.03) 50%,
+    transparent 100%
+  );
+}
+
+.features-grid {
+  display: grid !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 24px;
+}
+
+/* Feature Card */
+.feature-card {
+  display: flex !important;
+  flex-direction: column !important;
+  position: relative;
+  background: var(--feature-gradient);
+  border: 1px solid var(--feature-border);
+  border-radius: 24px;
+  padding: 32px 28px;
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 0.6s ease,
+    transform 0.6s ease;
+}
+
+.feature-card-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  box-shadow:
+    0 24px 60px rgba(0,0,0,0.3),
+    0 0 60px rgba(from var(--feature-color) r g b / 0.1);
+  border-color: var(--feature-color);
+}
+
+/* Glow */
+.feature-card-glow {
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: var(--feature-color);
+  opacity: 0.06;
+  filter: blur(60px);
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.feature-card:hover .feature-card-glow {
+  opacity: 0.14;
+}
+
+/* Badge */
+.feature-badge {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--feature-color);
+  background: rgba(from var(--feature-color) r g b / 0.12);
+  border: 1px solid rgba(from var(--feature-color) r g b / 0.3);
+  padding: 4px 10px;
+  border-radius: 100px;
+  margin-bottom: 20px;
+}
+
+/* Icon */
+.feature-icon-wrap {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  background: rgba(from var(--feature-color) r g b / 0.12);
+  border: 1px solid rgba(from var(--feature-color) r g b / 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-icon-wrap {
+  transform: scale(1.05) rotate(-3deg);
+}
+
+.feature-icon {
+  font-size: 1.8rem;
+}
+
+/* Text */
+.feature-title {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #F0EDE4;
+  margin-bottom: 4px;
+}
+
+.feature-subtitle {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--feature-color);
+  margin-bottom: 14px;
+}
+
+.feature-desc {
+  font-size: 0.88rem;
+  color: rgba(240, 237, 228, 0.58);
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+/* Bullets */
+.feature-bullets {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.feature-bullet {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.84rem;
+  color: rgba(240, 237, 228, 0.68);
+}
+
+.bullet-check {
+  color: var(--feature-color);
+  font-weight: 700;
+  flex-shrink: 0;
+  font-size: 0.9rem;
+}
+
+/* CTA */
+.feature-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  justify-content: center;
+  padding: 13px 24px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--feature-color);
+  background: rgba(from var(--feature-color) r g b / 0.1);
+  border: 1px solid rgba(from var(--feature-color) r g b / 0.3);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-top: auto;
+}
+
+.feature-cta:hover {
+  background: rgba(from var(--feature-color) r g b / 0.18);
+  border-color: var(--feature-color);
+  transform: none;
+}
+
+.feature-cta svg {
+  transition: transform 0.2s ease;
+}
+
+.feature-cta:hover svg {
+  transform: translateX(4px);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 600px) and (max-width: 900px) {
+  .features-grid {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 100%;
+  }
+}
