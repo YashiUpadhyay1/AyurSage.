@@ -15,6 +15,7 @@ export default function PredictDosha() {
   const location = useLocation();
   const [step, setStep] = useState(1);
   const [displayText, setDisplayText] = useState("");
+  const [loading, setLoading] = useState(false); // Fix: Added loading state to handle Render spin-up
   const fullText = "Identify current imbalances in your lifestyle and health factors";
 
   const [user, setUser] = useState(null);
@@ -56,7 +57,7 @@ export default function PredictDosha() {
 
   const isStep1Valid = form.name.trim() !== "" && form.age !== "" && form.gender !== "" && form.prakriti !== "";
   const isStep2Valid = form.sleep !== "" && form.stress !== "" && form.diet !== "" && form.season !== "";
-  const isStep3Valid = form.symptoms.trim() !== "";
+  const isStep3Valid = form.symptoms.trim() !== "" && !loading;
 
   const validateSymptoms = () => {
     const text = form.symptoms.toLowerCase();
@@ -118,6 +119,8 @@ export default function PredictDosha() {
       return;
     }
 
+    setLoading(true); // Start loading
+
     try {
       // Step 1: Get Prediction from Live ML Model
       const response = await axios.post(
@@ -147,6 +150,7 @@ export default function PredictDosha() {
           color: '#ffffff',
           confirmButtonColor: '#C5F82A'
         });
+        setLoading(false);
         return;
       }
 
@@ -166,15 +170,19 @@ export default function PredictDosha() {
       });
 
     } catch (err) {
-      console.error("ML Error:", err);
+      // Fix: Detailed logging to catch why the AI server fails
+      console.error("ML Error Details:", err.response?.data || err.message);
+      
       Swal.fire({
         icon: 'error',
         title: 'Prediction Failed',
-        text: 'System could not reach the AI model server.',
+        text: err.response ? 'The AI model returned an error. Please check your inputs.' : 'The AI server is waking up. Please wait 30 seconds and try again.',
         background: '#1a1a1a',
         color: '#ffffff',
         confirmButtonColor: '#C5F82A'
       });
+    } finally {
+      setLoading(false); // End loading
     }
   };
 
@@ -207,7 +215,9 @@ export default function PredictDosha() {
           <header className="prakriti-header">
             <p className="section-tag">ANALYSIS STEP {step} OF 3</p>
             <h1 className="hero-main-title">Dosha Analysis</h1>
-            <p className="hero-para" style={{ margin: "0 auto 20px auto", textAlign: "center" }}>{displayText}</p>
+            <p className="hero-para" style={{ margin: "0 auto 20px auto", textAlign: "center" }}>
+                {loading ? "AI Server is analyzing... (This may take a moment)" : displayText}
+            </p>
             <div className="overall-progress-bg">
               <div className="overall-progress-fill" style={{ width: `${(step / 3) * 100}%` }}></div>
             </div>
@@ -329,7 +339,14 @@ export default function PredictDosha() {
                 </div>
                 <div className="stepper-controls" style={{ marginTop: '20px' }}>
                   <button className="parrot-outline-btn" onClick={prevStep}>Back</button>
-                  <button className="parrot-action-btn" disabled={!isStep3Valid} onClick={handleSubmit} style={{ opacity: isStep3Valid ? 1 : 0.5 }}>Get Analysis →</button>
+                  <button 
+                    className="parrot-action-btn" 
+                    disabled={!isStep3Valid || loading} 
+                    onClick={handleSubmit} 
+                    style={{ opacity: (isStep3Valid && !loading) ? 1 : 0.5 }}
+                  >
+                    {loading ? "Analyzing..." : "Get Analysis →"}
+                  </button>
                 </div>
               </div>
             )}
