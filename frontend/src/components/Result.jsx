@@ -36,17 +36,14 @@ export default function Result() {
     );
   }
 
-<<<<<<< HEAD
-  // 1. DATA EXTRACTION: Handle both ML response and Database record[cite: 4, 8, 9]
   const { result: mlData, details, type, refId } = data;
   
-  // 2. FIELD NORMALIZATION: Map keys to match your Mongoose Schema[cite: 4, 8]
-  // result can be in predicted_dosha (ML) or result (DB)[cite: 4, 9]
+  // Field Normalization for Dashboard History and Predict Page[cite: 4, 12]
   const finalResult = mlData?.predicted_dosha || mlData?.result || (typeof mlData === 'string' ? mlData : "Unknown");
   const finalDisease = mlData?.predicted_disease || mlData?.disease || "Not Identified";
   const finalTreatment = mlData?.treatment || null;
   
-  // Use 'form' if loading history, else use 'details' from PredictDosha[cite: 4, 8]
+  // Choose correct details object[cite: 4, 8]
   const finalDetails = type === "History Report" ? (mlData?.form || details) : details;
   const today = finalDetails?.date ? new Date(finalDetails.date).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
 
@@ -68,48 +65,13 @@ export default function Result() {
           headers: { Authorization: `Bearer ${token}` }
         });
         localStorage.setItem("lastResultSaved", JSON.stringify(finalDetails?.symptoms));
-=======
-  // Syncing data from both ML Response and Database Records[cite: 4, 8, 9]
-  const { result: mlData, details, type, refId } = data;
-  
-  // result mapping[cite: 2, 4]
-  const result = mlData?.predicted_dosha || mlData?.dosha || mlData?.result || (typeof mlData === 'string' ? mlData : "Unknown");
-  const disease = mlData?.predicted_disease || mlData?.disease || "Not Identified";
-  const today = details?.date ? new Date(details.date).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
-
-  // Get dynamic treatment saved in DB[cite: 4, 8]
-  const treatment = mlData?.treatment || null;
-
-  useEffect(() => {
-    const saveResultToDB = async () => {
-      if (type === "History Report") return;
-      if (localStorage.getItem("lastResultSaved") === JSON.stringify(details?.symptoms)) return;
-
-      const token = localStorage.getItem("token");
-      if (!token || result === "Unknown") return;
-
-      try {
-        await axios.post(`${API_BASE_URL}/api/dosha`, {
-          result: result,
-          disease: disease,
-          details: details, 
-          treatment: treatment 
-        }, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        localStorage.setItem("lastResultSaved", JSON.stringify(details?.symptoms));
->>>>>>> 94e9da2914c320317c34ad93f84a7427269eb941
       } catch (err) {
         console.error("Database save failed:", err.message);
       }
     };
 
     saveResultToDB();
-<<<<<<< HEAD
   }, [finalResult, finalDisease, finalDetails, finalTreatment, type]);
-=======
-  }, [result, disease, details, treatment, type]);
->>>>>>> 94e9da2914c320317c34ad93f84a7427269eb941
 
   return (
     <div className="home-page-wrapper">
@@ -150,7 +112,6 @@ export default function Result() {
 
           <div className="rx-complaints">
             <p className="rx-sub-label">Diagnosis Result</p>
-<<<<<<< HEAD
             <h2 className="text-diagnosis-highlight" style={{ fontSize: "1.8rem", marginBottom: "15px" }}>{finalResult}</h2>
             
             <p className="rx-sub-label">Most Likely Disease</p>
@@ -158,15 +119,6 @@ export default function Result() {
             
             <p className="rx-sub-label" style={{marginTop: '20px'}}>Chief Complaints / Symptoms</p>
             <p style={{ fontStyle: "italic", color: "#fff" }}>"{finalDetails?.symptoms || "No symptoms reported."}"</p>
-=======
-            <h2 className="text-diagnosis-highlight" style={{ fontSize: "1.8rem", marginBottom: "15px" }}>{result}</h2>
-            
-            <p className="rx-sub-label">Most Likely Disease</p>
-            <h2 className="text-diagnosis-highlight">{disease}</h2>
-            
-            <p className="rx-sub-label" style={{marginTop: '20px'}}>Chief Complaints / Symptoms</p>
-            <p style={{ fontStyle: "italic", color: "#fff" }}>"{details?.symptoms || "No symptoms reported."}"</p>
->>>>>>> 94e9da2914c320317c34ad93f84a7427269eb941
           </div>
 
           <hr style={{ opacity: "0.1", margin: "30px 0" }} />
@@ -177,21 +129,13 @@ export default function Result() {
                 <div className="rx-column">
                   <p className="rx-section-title">Ahara (Dietary Plan)</p>
                   <ul className="rx-list">
-<<<<<<< HEAD
-                    {finalTreatment.diet ? finalTreatment.diet.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Plan loaded from history...</li>}
-=======
-                    {treatment.diet ? treatment.diet.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Plan details in history...</li>}
->>>>>>> 94e9da2914c320317c34ad93f84a7427269eb941
+                    {finalTreatment.diet?.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>))}
                   </ul>
                 </div>
                 <div className="rx-column">
                   <p className="rx-section-title">Chikitsa (Therapy)</p>
                   <ul className="rx-list">
-<<<<<<< HEAD
-                    {finalTreatment.therapy ? finalTreatment.therapy.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Therapy loaded from history...</li>}
-=======
-                    {treatment.therapy ? treatment.therapy.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Therapy details in history...</li>}
->>>>>>> 94e9da2914c320317c34ad93f84a7427269eb941
+                    {finalTreatment.therapy?.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>))}
                   </ul>
                 </div>
               </div>
@@ -209,11 +153,7 @@ export default function Result() {
             </>
           ) : (
             <div style={{textAlign: 'center', padding: '20px', border: '1px dashed #A7FF83', borderRadius: '10px'}}>
-<<<<<<< HEAD
-               <p style={{color: '#A7FF83'}}>Customized treatment plan successfully retrieved from history.</p>
-=======
-               <p style={{color: '#A7FF83'}}>Detailed treatment plan is available in the medical history record.</p>
->>>>>>> 94e9da2914c320317c34ad93f84a7427269eb941
+               <p style={{color: '#A7FF83'}}>Customized treatment plan retrieved from record.</p>
             </div>
           )}
 
