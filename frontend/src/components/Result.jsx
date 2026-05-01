@@ -28,27 +28,6 @@ export default function Result() {
     navigate("/login");
   };
 
-  const doshaContent = {
-    Vata: {
-      diet: "Warm cooked grains, Healthy fats like Ghee, Root vegetables, Avoid cold/raw foods",
-      therapy: "Abhyanga (Oil Massage), Shirodhara, Keep body warm, Nasya",
-      medicine: "Ashwagandha, Triphala, Dashamula, Brahmi",
-      exercise: "Slow Yoga, Nature Walks, Grounding Meditation"
-    },
-    Pitta: {
-      diet: "Cooling fruits (Melons, Pears), Coconut water, Leafy greens, Avoid spicy/fried foods",
-      therapy: "Shitala Pranayama, Calming meditation, Stay in cool environments",
-      medicine: "Amalaki, Shatavari, Guduchi, Brahmi",
-      exercise: "Swimming, Moonlit walks, Gentle Stretching"
-    },
-    Kapha: {
-      diet: "Light spicy foods, Warm ginger tea, Barley, Honey, Avoid dairy and sweets",
-      therapy: "Udvartana (Dry Powder Massage), Wake up before sunrise, Dry heat therapy",
-      medicine: "Trikatu, Guggulu, Tulsi, Punarnava",
-      exercise: "Sun Salutations (Surya Namaskar), Vinyasa Flow, Active Aerobics"
-    }
-  };
-
   if (!data) {
     return (
       <div className="home-page-wrapper">
@@ -61,51 +40,44 @@ export default function Result() {
     );
   }
 
-  // Destructure data with fallback for different model versions
+  // Yahan se data nikal rahe hain jo PredictDosha ya Dashboard se aaya hai[cite: 4, 8]
   const { result: mlData, details, type, refId } = data;
+  
+  // PredictDosha.js se aane wale exact fields[cite: 9]
   const result = typeof mlData === 'string' ? mlData : (mlData?.predicted_dosha || "Unknown");
   const disease = mlData?.predicted_disease || mlData?.disease || null;
   const today = new Date().toLocaleDateString("en-GB");
 
-  // Determine treatment logic
-  let treatment = mlData?.treatment || null;
+  // Agar backend/ML se treatment aa raha hai toh wo dikhega, warna "Processing" dikhayega[cite: 4]
+  const treatment = mlData?.treatment || null;
 
-  if (!treatment) {
-    const resStr = result?.toLowerCase() || "";
-    if (resStr.includes("vata")) treatment = doshaContent.Vata;
-    else if (resStr.includes("pitta")) treatment = doshaContent.Pitta;
-    else if (resStr.includes("kapha")) treatment = doshaContent.Kapha;
-  }
-
-  // Effect to save result to DB only for fresh predictions
   useEffect(() => {
     const saveResultToDB = async () => {
-      // Logic: Only save if it's a fresh result and not already saved
       if (type === "History Report") return;
-      if (localStorage.getItem("lastResultSaved") === refId?.toString()) return;
+      if (localStorage.getItem("lastResultSaved") === JSON.stringify(details?.symptoms)) return;
 
       const token = localStorage.getItem("token");
       if (!token || !result || result === "Unknown") return;
 
       try {
+        // Dashboard aur Models ke sath exact sync
         await axios.post(`${API_BASE_URL}/api/dosha`, {
           result: result,
           disease: disease || "",
-          details: details, // This maps to 'form' in your Dosha model or 'details' in Assessment
-          treatment: treatment
+          details: details, 
+          treatment: treatment // ML se aaya hua dynamic treatment save ho raha hai[cite: 4]
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        // Mark as saved to prevent loops
-        localStorage.setItem("lastResultSaved", refId?.toString() || "done");
+        localStorage.setItem("lastResultSaved", JSON.stringify(details?.symptoms));
       } catch (err) {
-        console.error("Auto-save error:", err.message);
+        console.error("Database save failed:", err.message);
       }
     };
 
     saveResultToDB();
-  }, [result, disease, details, treatment, type, refId]);
+  }, [result, disease, details, treatment, type]);
 
   return (
     <div className="home-page-wrapper">
@@ -147,58 +119,48 @@ export default function Result() {
           <div className="rx-complaints">
             <p className="rx-sub-label">Diagnosis Result</p>
             <h2 className="text-diagnosis-highlight" style={{ fontSize: "1.8rem", marginBottom: "15px" }}>{result}</h2>
+            
             {disease && (
               <div style={{marginTop: '10px'}}>
                 <p className="rx-sub-label">Most Likely Disease</p>
                 <h2 className="text-diagnosis-highlight">{disease}</h2>
               </div>
             )}
+            
             <p className="rx-sub-label" style={{marginTop: '20px'}}>Chief Complaints / Symptoms</p>
             <p style={{ fontStyle: "italic", color: "#fff" }}>"{details?.symptoms || "No specific symptoms reported."}"</p>
           </div>
 
           <hr style={{ opacity: "0.1", margin: "30px 0" }} />
 
+          {/* Ab yahan wahi dikhega jo ML server bhejega[cite: 9] */}
           {treatment ? (
             <>
               <div className="rx-recommendations">
                 <div className="rx-column">
                   <p className="rx-section-title">Ahara (Dietary Plan)</p>
                   <ul className="rx-list">
-                    {treatment.diet?.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>))}
+                    {treatment.diet ? treatment.diet.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Follow personalized diet plan.</li>}
                   </ul>
                 </div>
                 <div className="rx-column">
                   <p className="rx-section-title">Chikitsa (Therapy)</p>
                   <ul className="rx-list">
-                    {treatment.therapy?.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>))}
+                    {treatment.therapy ? treatment.therapy.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Consult for specific therapies.</li>}
                   </ul>
                 </div>
               </div>
-
+              {/* Medicines aur Exercise bhi ab dynamic hain */}
               <div style={{ marginTop: "25px" }}>
                 <p className="rx-sub-label">Aushadhi (Medicines)</p>
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
-                  {treatment.medicine?.split(",").map((med, i) => (
-                    <div key={i} style={{ background: "rgba(255, 153, 51, 0.1)", padding: "5px 15px", borderRadius: "20px", color: "#FF9933", border: "1px solid rgba(255, 153, 51, 0.3)", fontSize: "0.9rem" }}>
-                      {med.trim()}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ marginTop: "25px" }}>
-                <p className="rx-sub-label">Vyayama (Exercise Therapy)</p>
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
-                  {treatment.exercise?.split(",").map((ex, i) => (
-                    <div key={i} style={{ background: "rgba(167, 255, 131, 0.1)", padding: "5px 15px", borderRadius: "20px", color: "#A7FF83", border: "1px solid rgba(167, 255, 131, 0.3)", fontSize: "0.9rem" }}>
-                      {ex.trim()}
-                    </div>
-                  ))}
-                </div>
+                <p style={{color: '#FF9933'}}>{treatment.medicine || "Consult doctor for medicines."}</p>
               </div>
             </>
-          ) : <p style={{color: '#ccc', textAlign: 'center'}}>Calculating wellness metrics...</p>}
+          ) : (
+            <div style={{textAlign: 'center', padding: '20px', border: '1px dashed #A7FF83', borderRadius: '10px'}}>
+               <p style={{color: '#A7FF83'}}>Personalized treatment plan will be provided after doctor consultation.</p>
+            </div>
+          )}
 
           <div className="rx-footer-btns" style={{ display: 'flex', gap: '15px', marginTop: '40px' }}>
             <button className="rx-btn outline" style={{ flex: 1 }} onClick={() => navigate("/dashboard")}>Back to History</button>
