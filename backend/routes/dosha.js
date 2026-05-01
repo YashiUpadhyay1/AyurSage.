@@ -3,27 +3,27 @@ const router = express.Router();
 const Dosha = require("../models/Dosha");
 const auth = require("../middleware/auth");
 
-// SAVE RESULT - Standardized to match frontend 'details' key
+// SAVE RESULT - Frontend 'details' ko model 'form' mein map karna[cite: 1]
 router.post("/", auth, async (req, res) => {
   try {
     const { result, disease, details, treatment } = req.body;
 
     const saved = await Dosha.create({
       user: req.userId,
-      form: details, // Mapping frontend 'details' to backend 'form' field[cite: 4, 10]
-      result,
-      disease,
-      treatment
+      form: details, // Direct mapping: Frontend details -> Backend form[cite: 1]
+      result: result,
+      disease: disease,
+      treatment: treatment
     });
 
     res.json(saved);
   } catch (err) {
     console.log("SAVE ERROR:", err.message);
-    res.status(500).json({ message: "Server error while saving result" });
+    res.status(500).json({ message: "Server error while saving" });
   }
 });
 
-// GET ALL HISTORY
+// GET ALL HISTORY[cite: 1]
 router.get("/", auth, async (req, res) => {
   try {
     const history = await Dosha.find({ user: req.userId }).sort({ date: -1 });
@@ -33,7 +33,7 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-// GET SINGLE RECORD BY ID
+// GET SINGLE RECORD BY ID[cite: 1]
 router.get("/:id", auth, async (req, res) => {
   try {
     const record = await Dosha.findById(req.params.id);
