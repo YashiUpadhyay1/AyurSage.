@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Ayurnavbar from "./Ayurnavbar";
 import "../style.css";
 
@@ -36,7 +36,7 @@ export default function Dashboard() {
       });
       
       const data = Array.isArray(res.data) ? res.data : [];
-      setHistory([...data].reverse()); 
+      setHistory([...data]); 
       
     } catch (err) {
       console.error("Dashboard Fetch Error:", err);
@@ -81,13 +81,9 @@ export default function Dashboard() {
             <div className="dashboard-list-scroll">
               {history.map((r, index) => {
                 const displayId = history.length - index; 
-<<<<<<< HEAD
+                // Handle different field naming between models[cite: 2, 4]
                 const formData = r.form || r.details || {}; 
                 const resultDosha = r.result || r.dosha;
-=======
-                const formData = r.details || r.form || {}; 
-                const resultDosha = r.dosha || r.result;
->>>>>>> 94e9da2914c320317c34ad93f84a7427269eb941
 
                 return (
                   <div key={r._id || index} className="dashboard-row-item">
@@ -112,27 +108,15 @@ export default function Dashboard() {
                         <p className="text-diagnosis-highlight">{resultDosha}</p>
                       </div>
 
-                      <div className="dash-item">
-                        <span>Age</span>
-                        <p>{formData.age ? `${formData.age} Y` : "N/A"}</p>
-                      </div>
-
                       <div className="dash-item-btn">
                         <button
                           className="parrot-outline-btn"
                           style={{ borderRadius: '50px', padding: '10px 30px' }}
                           onClick={() => {
-<<<<<<< HEAD
-                            // Pass the record exactly how Result.jsx expects it[cite: 8]
-                            const resultState = { 
-                              result: r, // The full database record[cite: 4]
-                              details: r.form || r.details || {}, // Support for both model versions[cite: 2, 4]
-=======
-                            // FIX: Passing the full object 'r' as 'result'[cite: 4, 8]
+                            // Passing the full record 'r' ensures Result.jsx can see treatment and disease[cite: 4, 8]
                             const resultState = { 
                               result: r, 
                               details: formData, 
->>>>>>> 94e9da2914c320317c34ad93f84a7427269eb941
                               type: "History Report", 
                               refId: displayId 
                             };
