@@ -40,17 +40,18 @@ export default function Result() {
     );
   }
 
-  // Yahan se data nikal rahe hain jo PredictDosha ya Dashboard se aaya hai[cite: 4, 8]
+  // Dashboard aur PredictDosha dono se aane wale data ko handle karne ke liye mapping
   const { result: mlData, details, type, refId } = data;
   
-  // PredictDosha.js se aane wale exact fields[cite: 9]
-  const result = typeof mlData === 'string' ? mlData : (mlData?.predicted_dosha || "Unknown");
-  const disease = mlData?.predicted_disease || mlData?.disease || null;
-  const today = new Date().toLocaleDateString("en-GB");
+  // PredictDosha.js aur Database ke fields ko normalize karna[cite: 2, 4]
+  const result = typeof mlData === 'string' ? mlData : (mlData?.predicted_dosha || mlData?.result || "Unknown");
+  const disease = mlData?.predicted_disease || mlData?.disease || "Not Identified";
+  const today = details?.date ? new Date(details.date).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
 
-  // Agar backend/ML se treatment aa raha hai toh wo dikhega, warna "Processing" dikhayega[cite: 4]
+  // Dashboard se aate waqt 'treatment' field 'mlData' ke andar hoti hai[cite: 4, 8]
   const treatment = mlData?.treatment || null;
 
+  // Auto-save result logic (Sirf tab chalega jab naya prediction ho)[cite: 8]
   useEffect(() => {
     const saveResultToDB = async () => {
       if (type === "History Report") return;
@@ -60,12 +61,11 @@ export default function Result() {
       if (!token || !result || result === "Unknown") return;
 
       try {
-        // Dashboard aur Models ke sath exact sync
         await axios.post(`${API_BASE_URL}/api/dosha`, {
           result: result,
-          disease: disease || "",
+          disease: disease,
           details: details, 
-          treatment: treatment // ML se aaya hua dynamic treatment save ho raha hai[cite: 4]
+          treatment: treatment // ML Server se aane wala real treatment save karein
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -120,12 +120,8 @@ export default function Result() {
             <p className="rx-sub-label">Diagnosis Result</p>
             <h2 className="text-diagnosis-highlight" style={{ fontSize: "1.8rem", marginBottom: "15px" }}>{result}</h2>
             
-            {disease && (
-              <div style={{marginTop: '10px'}}>
-                <p className="rx-sub-label">Most Likely Disease</p>
-                <h2 className="text-diagnosis-highlight">{disease}</h2>
-              </div>
-            )}
+            <p className="rx-sub-label">Most Likely Disease</p>
+            <h2 className="text-diagnosis-highlight">{disease}</h2>
             
             <p className="rx-sub-label" style={{marginTop: '20px'}}>Chief Complaints / Symptoms</p>
             <p style={{ fontStyle: "italic", color: "#fff" }}>"{details?.symptoms || "No specific symptoms reported."}"</p>
@@ -133,32 +129,49 @@ export default function Result() {
 
           <hr style={{ opacity: "0.1", margin: "30px 0" }} />
 
-          {/* Ab yahan wahi dikhega jo ML server bhejega[cite: 9] */}
+          {/* Sirf dynamic treatment dikhayega jo Database/ML se aaya hai[cite: 4, 9] */}
           {treatment ? (
             <>
               <div className="rx-recommendations">
                 <div className="rx-column">
                   <p className="rx-section-title">Ahara (Dietary Plan)</p>
                   <ul className="rx-list">
-                    {treatment.diet ? treatment.diet.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Follow personalized diet plan.</li>}
+                    {treatment.diet?.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>))}
                   </ul>
                 </div>
                 <div className="rx-column">
                   <p className="rx-section-title">Chikitsa (Therapy)</p>
                   <ul className="rx-list">
-                    {treatment.therapy ? treatment.therapy.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Consult for specific therapies.</li>}
+                    {treatment.therapy?.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>))}
                   </ul>
                 </div>
               </div>
-              {/* Medicines aur Exercise bhi ab dynamic hain */}
+
               <div style={{ marginTop: "25px" }}>
                 <p className="rx-sub-label">Aushadhi (Medicines)</p>
-                <p style={{color: '#FF9933'}}>{treatment.medicine || "Consult doctor for medicines."}</p>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+                  {treatment.medicine?.split(",").map((med, i) => (
+                    <div key={i} style={{ background: "rgba(255, 153, 51, 0.1)", padding: "5px 15px", borderRadius: "20px", color: "#FF9933", border: "1px solid rgba(255, 153, 51, 0.3)", fontSize: "0.9rem" }}>
+                      {med.trim()}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ marginTop: "25px" }}>
+                <p className="rx-sub-label">Vyayama (Exercise Therapy)</p>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+                  {treatment.exercise?.split(",").map((ex, i) => (
+                    <div key={i} style={{ background: "rgba(167, 255, 131, 0.1)", padding: "5px 15px", borderRadius: "20px", color: "#A7FF83", border: "1px solid rgba(167, 255, 131, 0.3)", fontSize: "0.9rem" }}>
+                      {ex.trim()}
+                    </div>
+                  ))}
+                </div>
               </div>
             </>
           ) : (
             <div style={{textAlign: 'center', padding: '20px', border: '1px dashed #A7FF83', borderRadius: '10px'}}>
-               <p style={{color: '#A7FF83'}}>Personalized treatment plan will be provided after doctor consultation.</p>
+               <p style={{color: '#A7FF83'}}>Customized treatment plan loading from history...</p>
             </div>
           )}
 
