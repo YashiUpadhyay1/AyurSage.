@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Ayurnavbar from "./Ayurnavbar";
 import "../style.css";
 
@@ -11,7 +11,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
   
   const handleLogout = () => {
     localStorage.clear();
@@ -82,8 +81,13 @@ export default function Dashboard() {
             <div className="dashboard-list-scroll">
               {history.map((r, index) => {
                 const displayId = history.length - index; 
+<<<<<<< HEAD
                 const formData = r.form || r.details || {}; 
                 const resultDosha = r.result || r.dosha;
+=======
+                const formData = r.details || r.form || {}; 
+                const resultDosha = r.dosha || r.result;
+>>>>>>> 94e9da2914c320317c34ad93f84a7427269eb941
 
                 return (
                   <div key={r._id || index} className="dashboard-row-item">
@@ -118,10 +122,17 @@ export default function Dashboard() {
                           className="parrot-outline-btn"
                           style={{ borderRadius: '50px', padding: '10px 30px' }}
                           onClick={() => {
+<<<<<<< HEAD
                             // Pass the record exactly how Result.jsx expects it[cite: 8]
                             const resultState = { 
                               result: r, // The full database record[cite: 4]
                               details: r.form || r.details || {}, // Support for both model versions[cite: 2, 4]
+=======
+                            // FIX: Passing the full object 'r' as 'result'[cite: 4, 8]
+                            const resultState = { 
+                              result: r, 
+                              details: formData, 
+>>>>>>> 94e9da2914c320317c34ad93f84a7427269eb941
                               type: "History Report", 
                               refId: displayId 
                             };
