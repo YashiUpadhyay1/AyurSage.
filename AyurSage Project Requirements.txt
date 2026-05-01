@@ -1,0 +1,95 @@
+AYURSAGE PROJECT DOCUMENTATION & REQUIREMENTS
+==========================================
+
+Project Overview:
+AyurSage is an Ayurvedic AI Consultation platform that integrates 
+MERN Stack (Web Development) with Machine Learning (Python/Flask) 
+to provide personalized Dosha analysis and health recommendations.
+
+1. SYSTEM PREREQUISITES
+-----------------------
+- Node.js (v18.x or higher)
+- Python (v3.9 or higher)
+- MongoDB (Local instance or MongoDB Atlas)
+- npm or yarn package manager
+
+2. ML SERVER REQUIREMENTS (Python/Flask)
+----------------------------------------
+File: ml-server/requirements.txt
+To install: pip install -r requirements.txt
+
+Dependencies:
+- flask==3.0.0
+- flask-cors==4.0.0
+- pandas==2.1.1
+- numpy==1.26.0
+- scikit-learn==1.3.1
+- joblib==1.3.2
+
+3. FRONTEND REQUIREMENTS (React.js)
+-----------------------------------
+File: frontend/package.json
+To install: npm install
+
+Core Dependencies:
+- react
+- react-dom
+- react-router-dom
+- axios
+- sweetalert2 (For premium UI alerts)
+
+4. BACKEND REQUIREMENTS (Node.js/Express)
+-----------------------------------------
+File: backend/package.json
+To install: npm install
+
+Core Dependencies:
+- express
+- mongoose
+- cors
+- dotenv
+- axios (To communicate with ML server)
+- jsonwebtoken (JWT Auth)
+- bcryptjs (Password hashing)
+
+5. ENVIRONMENT CONFIGURATION
+----------------------------
+Create a .env file in the /backend folder:
+
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_jwt_secret_key
+ML_SERVER_URL=http://localhost:8000/predict
+
+6. PROJECT STRUCTURE & SETUP GUIDE
+----------------------------------
+Root Directory/
+├── frontend/        # React User Interface
+├── backend/         # Node.js API & Database Logic
+└── ml-server/       # Python Flask ML Prediction Engine
+
+STEP-BY-STEP RUN INSTRUCTIONS:
+
+Step A: Start the ML Engine
+1. cd ml-server
+2. pip install -r requirements.txt
+3. python app.py (Starts on http://localhost:8000)
+
+Step B: Start the Backend API
+1. cd backend
+2. npm install
+3. npm start (Starts on http://localhost:5000)
+
+Step C: Start the Frontend UI
+1. cd frontend
+2. npm install
+3. npm start (Starts on http://localhost:3000)
+
+7. BIOLOGICAL VALIDATION RULES (Integrated)
+-------------------------------------------
+The system includes frontend guardrails to prevent biological 
+inconsistency (e.g., preventing male profiles from submitting 
+female-specific symptoms like menstruation/pcos), ensuring 
+high-quality data input for the AI model.
+
+==========================================
