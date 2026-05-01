@@ -3,17 +3,17 @@ const router = express.Router();
 const Dosha = require("../models/Dosha");
 const auth = require("../middleware/auth");
 
-// SAVE RESULT
+// SAVE RESULT - Standardized to match frontend 'details' key
 router.post("/", auth, async (req, res) => {
   try {
     const { result, disease, details, treatment } = req.body;
 
     const saved = await Dosha.create({
       user: req.userId,
-      form: details, // Mapping frontend 'details' to model 'form'[cite: 4, 8]
-      result: result,
-      disease: disease,
-      treatment: treatment
+      form: details, // Mapping frontend 'details' to backend 'form' field[cite: 4, 10]
+      result,
+      disease,
+      treatment
     });
 
     res.json(saved);
@@ -28,7 +28,7 @@ router.get("/", auth, async (req, res) => {
   try {
     const history = await Dosha.find({ user: req.userId }).sort({ date: -1 });
     res.json(history);
-  } catch {
+  } catch (err) {
     res.status(500).json({ message: "Error fetching history" });
   }
 });
@@ -38,7 +38,7 @@ router.get("/:id", auth, async (req, res) => {
   try {
     const record = await Dosha.findById(req.params.id);
     res.json(record);
-  } catch {
+  } catch (err) {
     res.status(500).json({ message: "Error fetching record" });
   }
 });
