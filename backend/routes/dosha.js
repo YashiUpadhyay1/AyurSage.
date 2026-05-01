@@ -3,17 +3,17 @@ const router = express.Router();
 const Dosha = require("../models/Dosha");
 const auth = require("../middleware/auth");
 
-//  SAVE RESULT
+// SAVE RESULT
 router.post("/", auth, async (req, res) => {
   try {
     const { result, disease, details, treatment } = req.body;
 
     const saved = await Dosha.create({
       user: req.userId,
-      form: details,
-      result,
-      disease,
-      treatment
+      form: details, // Mapping frontend 'details' to model 'form'[cite: 4, 8]
+      result: result,
+      disease: disease,
+      treatment: treatment
     });
 
     res.json(saved);
@@ -33,7 +33,7 @@ router.get("/", auth, async (req, res) => {
   }
 });
 
-//  NEW: GET SINGLE RECORD BY ID
+// GET SINGLE RECORD BY ID
 router.get("/:id", auth, async (req, res) => {
   try {
     const record = await Dosha.findById(req.params.id);

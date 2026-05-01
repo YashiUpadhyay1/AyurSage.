@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Ayurnavbar from "./Ayurnavbar";
 import "../style.css";
 
-// Yashi, yahan hum direct Live Backend URL set kar rahe hain
 const API_BASE_URL = "https://ayur-sage.onrender.com";
 
 export default function Dashboard() {
@@ -33,7 +32,6 @@ export default function Dashboard() {
     }
 
     try {
-      // Localhost ko live link se replace kar diya hai
       const res = await axios.get(`${API_BASE_URL}/api/dosha`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -83,15 +81,16 @@ export default function Dashboard() {
           ) : (
             <div className="dashboard-list-scroll">
               {history.map((r, index) => {
-                const displayId = index + 1; 
+                const displayId = history.length - index; 
                 const formData = r.form || r.details || {}; 
+                const resultDosha = r.result || r.dosha;
 
                 return (
                   <div key={r._id || index} className="dashboard-row-item">
                     <div className="dash-meta-grid">
                       <div className="dash-item">
                         <span>Ref ID</span>
-                        <p style={{ color: '#FFD700', fontWeight: '700' }}>#{displayId}</p>
+                        <p style={{ color: '#C5F82A', fontWeight: '700' }}>#{displayId}</p>
                       </div>
                       
                       <div className="dash-item">
@@ -106,7 +105,7 @@ export default function Dashboard() {
 
                       <div className="dash-item">
                         <span>Diagnosis</span>
-                        <p className="text-diagnosis-highlight">{r.result}</p>
+                        <p className="text-diagnosis-highlight">{resultDosha}</p>
                       </div>
 
                       <div className="dash-item">
@@ -119,13 +118,10 @@ export default function Dashboard() {
                           className="parrot-outline-btn"
                           style={{ borderRadius: '50px', padding: '10px 30px' }}
                           onClick={() => {
+                            // Pass the record exactly how Result.jsx expects it[cite: 8]
                             const resultState = { 
-                              result: { 
-                                predicted_dosha: r.result,
-                                predicted_disease: r.disease || "",
-                                treatment: r.treatment || null
-                              }, 
-                              details: formData, 
+                              result: r, // The full database record[cite: 4]
+                              details: r.form || r.details || {}, // Support for both model versions[cite: 2, 4]
                               type: "History Report", 
                               refId: displayId 
                             };
