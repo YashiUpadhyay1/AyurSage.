@@ -15,11 +15,7 @@ export default function Result() {
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (e) {
-        console.error("User sync error", e);
-      }
+      try { setUser(JSON.parse(savedUser)); } catch (e) { console.error("User sync error", e); }
     }
   }, []);
 
@@ -40,36 +36,35 @@ export default function Result() {
     );
   }
 
-  // Dashboard aur PredictDosha dono se aane wale data ko handle karne ke liye mapping
+  // SYNC LOGIC: Mapping data from both ML Response and Database Records[cite: 4, 8, 9]
   const { result: mlData, details, type, refId } = data;
   
-  // PredictDosha.js aur Database ke fields ko normalize karna[cite: 2, 4]
-  const result = typeof mlData === 'string' ? mlData : (mlData?.predicted_dosha || mlData?.result || "Unknown");
+  // result can be a string (from history) or predicted_dosha (from ML)[cite: 2, 4]
+  const result = mlData?.predicted_dosha || mlData?.result || (typeof mlData === 'string' ? mlData : "Unknown");
   const disease = mlData?.predicted_disease || mlData?.disease || "Not Identified";
   const today = details?.date ? new Date(details.date).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
 
-  // Dashboard se aate waqt 'treatment' field 'mlData' ke andar hoti hai[cite: 4, 8]
+  // Get dynamic treatment saved in DB
   const treatment = mlData?.treatment || null;
 
-  // Auto-save result logic (Sirf tab chalega jab naya prediction ho)[cite: 8]
   useEffect(() => {
     const saveResultToDB = async () => {
       if (type === "History Report") return;
+      // Prevent duplicates by checking symptoms string
       if (localStorage.getItem("lastResultSaved") === JSON.stringify(details?.symptoms)) return;
 
       const token = localStorage.getItem("token");
-      if (!token || !result || result === "Unknown") return;
+      if (!token || result === "Unknown") return;
 
       try {
         await axios.post(`${API_BASE_URL}/api/dosha`, {
           result: result,
           disease: disease,
           details: details, 
-          treatment: treatment // ML Server se aane wala real treatment save karein
+          treatment: treatment 
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
-
         localStorage.setItem("lastResultSaved", JSON.stringify(details?.symptoms));
       } catch (err) {
         console.error("Database save failed:", err.message);
@@ -129,20 +124,19 @@ export default function Result() {
 
           <hr style={{ opacity: "0.1", margin: "30px 0" }} />
 
-          {/* Sirf dynamic treatment dikhayega jo Database/ML se aaya hai[cite: 4, 9] */}
           {treatment ? (
             <>
               <div className="rx-recommendations">
                 <div className="rx-column">
                   <p className="rx-section-title">Ahara (Dietary Plan)</p>
                   <ul className="rx-list">
-                    {treatment.diet?.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>))}
+                    {treatment.diet ? treatment.diet.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Dynamic diet plan following...</li>}
                   </ul>
                 </div>
                 <div className="rx-column">
                   <p className="rx-section-title">Chikitsa (Therapy)</p>
                   <ul className="rx-list">
-                    {treatment.therapy?.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>))}
+                    {treatment.therapy ? treatment.therapy.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Therapy suggestions...</li>}
                   </ul>
                 </div>
               </div>
@@ -157,21 +151,10 @@ export default function Result() {
                   ))}
                 </div>
               </div>
-
-              <div style={{ marginTop: "25px" }}>
-                <p className="rx-sub-label">Vyayama (Exercise Therapy)</p>
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
-                  {treatment.exercise?.split(",").map((ex, i) => (
-                    <div key={i} style={{ background: "rgba(167, 255, 131, 0.1)", padding: "5px 15px", borderRadius: "20px", color: "#A7FF83", border: "1px solid rgba(167, 255, 131, 0.3)", fontSize: "0.9rem" }}>
-                      {ex.trim()}
-                    </div>
-                  ))}
-                </div>
-              </div>
             </>
           ) : (
             <div style={{textAlign: 'center', padding: '20px', border: '1px dashed #A7FF83', borderRadius: '10px'}}>
-               <p style={{color: '#A7FF83'}}>Customized treatment plan loading from history...</p>
+               <p style={{color: '#A7FF83'}}>Personalized treatment plan from history loaded.</p>
             </div>
           )}
 
