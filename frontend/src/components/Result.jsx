@@ -61,11 +61,13 @@ export default function Result() {
     );
   }
 
+  // Destructure data with fallback for different model versions
   const { result: mlData, details, type, refId } = data;
   const result = typeof mlData === 'string' ? mlData : (mlData?.predicted_dosha || "Unknown");
-  const disease = mlData?.predicted_disease || null;
+  const disease = mlData?.predicted_disease || mlData?.disease || null;
   const today = new Date().toLocaleDateString("en-GB");
 
+  // Determine treatment logic
   let treatment = mlData?.treatment || null;
 
   if (!treatment) {
@@ -75,12 +77,11 @@ export default function Result() {
     else if (resStr.includes("kapha")) treatment = doshaContent.Kapha;
   }
 
-  // ✅ ADDED: Save treatment to DB only when this is a fresh prediction (not a history view)
+  // Effect to save result to DB only for fresh predictions
   useEffect(() => {
     const saveResultToDB = async () => {
-      // Only save for new predictions, not when viewing history
+      // Logic: Only save if it's a fresh result and not already saved
       if (type === "History Report") return;
-      // Don't save if already saved (prevent duplicate on re-render)
       if (localStorage.getItem("lastResultSaved") === refId?.toString()) return;
 
       const token = localStorage.getItem("token");
@@ -90,12 +91,13 @@ export default function Result() {
         await axios.post(`${API_BASE_URL}/api/dosha`, {
           result: result,
           disease: disease || "",
-          details: details,
-          treatment: treatment  // ✅ This is what was missing — now treatment is saved
+          details: details, // This maps to 'form' in your Dosha model or 'details' in Assessment
+          treatment: treatment
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
+        // Mark as saved to prevent loops
         localStorage.setItem("lastResultSaved", refId?.toString() || "done");
       } catch (err) {
         console.error("Auto-save error:", err.message);
@@ -103,10 +105,9 @@ export default function Result() {
     };
 
     saveResultToDB();
-  }, []); // runs once on mount
+  }, [result, disease, details, treatment, type, refId]);
 
   return (
-    // ✅ NO CHANGES — exact same JSX as before
     <div className="home-page-wrapper">
       <Ayurnavbar user={user} onLogout={handleLogout} />
 
