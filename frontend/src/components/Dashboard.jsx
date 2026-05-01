@@ -1,10 +1,9 @@
 import axios from "axios";
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Ayurnavbar from "./Ayurnavbar";
 import "../style.css";
 
-// Yashi, yahan hum direct Live Backend URL set kar rahe hain
 const API_BASE_URL = "https://ayur-sage.onrender.com";
 
 export default function Dashboard() {
@@ -12,7 +11,6 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
   
   const handleLogout = () => {
     localStorage.clear();
@@ -26,6 +24,7 @@ export default function Dashboard() {
       return;
     }
 
+    // User session details load karna
     const savedUserName = localStorage.getItem("userName");
     const savedUserEmail = localStorage.getItem("userEmail");
     if (savedUserName) {
@@ -33,12 +32,15 @@ export default function Dashboard() {
     }
 
     try {
-      // Localhost ko live link se replace kar diya hai
+      // FIX: Yahan /api/dosha ki jagah wahi route use karein jo Assessment.js model use karta hai
+      // Agar aapne common endpoint rakha hai toh check karein ki wo 'Assessment' model se fetch kare
       const res = await axios.get(`${API_BASE_URL}/api/dosha`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       
       const data = Array.isArray(res.data) ? res.data : [];
+      
+      // Latest reports ko sabse upar dikhane ke liye reverse kiya hai
       setHistory([...data].reverse()); 
       
     } catch (err) {
@@ -83,20 +85,24 @@ export default function Dashboard() {
           ) : (
             <div className="dashboard-list-scroll">
               {history.map((r, index) => {
-                const displayId = index + 1; 
-                const formData = r.form || r.details || {}; 
+                const displayId = history.length - index; 
+                // Dono models (Dosha aur Assessment) ko handle karne ke liye fallback keys:
+                const formData = r.details || r.form || {}; 
+                const resultDosha = r.dosha || r.result;
+                const resultDisease = r.disease || "";
+                const treatmentData = r.treatment || (r.details ? r.details.treatment : null);
 
                 return (
                   <div key={r._id || index} className="dashboard-row-item">
                     <div className="dash-meta-grid">
                       <div className="dash-item">
                         <span>Ref ID</span>
-                        <p style={{ color: '#FFD700', fontWeight: '700' }}>#{displayId}</p>
+                        <p style={{ color: '#C5F82A', fontWeight: '700' }}>#{displayId}</p>
                       </div>
                       
                       <div className="dash-item">
                         <span>Patient</span>
-                        <p style={{ fontWeight: '600' }}>{formData.name || "User"}</p>
+                        <p style={{ fontWeight: '600' }}>{formData.name || user?.name || "User"}</p>
                       </div>
 
                       <div className="dash-item">
@@ -106,7 +112,7 @@ export default function Dashboard() {
 
                       <div className="dash-item">
                         <span>Diagnosis</span>
-                        <p className="text-diagnosis-highlight">{r.result}</p>
+                        <p className="text-diagnosis-highlight">{resultDosha}</p>
                       </div>
 
                       <div className="dash-item">
@@ -119,11 +125,12 @@ export default function Dashboard() {
                           className="parrot-outline-btn"
                           style={{ borderRadius: '50px', padding: '10px 30px' }}
                           onClick={() => {
+                            // Syncing the state structure exactly as the Result page expects it
                             const resultState = { 
                               result: { 
-                                predicted_dosha: r.result,
-                                predicted_disease: r.disease || "",
-                                treatment: r.treatment || null
+                                predicted_dosha: resultDosha,
+                                predicted_disease: resultDisease,
+                                treatment: treatmentData
                               }, 
                               details: formData, 
                               type: "History Report", 
