@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Ayurnavbar from "./Ayurnavbar"; 
+import axios from "axios"; // Added axios for database sync
 import "../style.css";
+
+const API_BASE_URL = "https://ayur-sage.onrender.com";
 
 export default function Result() {
   const navigate = useNavigate();
@@ -61,8 +64,11 @@ export default function Result() {
 
   const { result: mlData, details, type, refId } = data;
   const result = typeof mlData === 'string' ? mlData : (mlData?.predicted_dosha || "Unknown");
-  const disease = mlData?.predicted_disease || null;
-  const today = new Date().toLocaleDateString("en-GB");
+  const disease = mlData?.predicted_disease || mlData?.disease || null;
+  
+  // Choose correct details object depending on source
+  const finalDetails = type === "History Report" ? (mlData?.form || details) : details;
+  const today = finalDetails?.date ? new Date(finalDetails.date).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
 
   // --- LOGIC: Use ML treatment OR Fallback to Local Content ---
   let treatment = mlData?.treatment || null;
@@ -73,6 +79,34 @@ export default function Result() {
     else if (resStr.includes("pitta")) treatment = doshaContent.Pitta;
     else if (resStr.includes("kapha")) treatment = doshaContent.Kapha;
   }
+
+  // --- DATABASE SYNC LOGIC ---
+  useEffect(() => {
+    const saveResultToDB = async () => {
+      // Don't save if viewing history or if already saved in this session
+      if (type === "History Report") return;
+      if (localStorage.getItem("lastResultSaved") === JSON.stringify(finalDetails?.symptoms)) return;
+
+      const token = localStorage.getItem("token");
+      if (!token || result === "Unknown") return;
+
+      try {
+        await axios.post(`${API_BASE_URL}/api/dosha`, {
+          result: result,
+          disease: disease,
+          details: finalDetails, 
+          treatment: treatment // Sending the calculated treatment to fix the 'null' issue
+        }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        localStorage.setItem("lastResultSaved", JSON.stringify(finalDetails?.symptoms));
+      } catch (err) {
+        console.error("Database save failed:", err.message);
+      }
+    };
+
+    saveResultToDB();
+  }, [result, disease, finalDetails, treatment, type]);
 
   return (
     <div className="home-page-wrapper">
@@ -98,17 +132,17 @@ export default function Result() {
 
           <section className="rx-patient-box">
             <div className="rx-meta-grid">
-              <div className="rx-meta-item"><span>Patient Name</span><p>{details?.name || "User"}</p></div>
-              <div className="rx-meta-item"><span>Age / Gender</span><p>{details?.age || "--"} Y / {details?.gender || "--"}</p></div>
-              <div className="rx-meta-item"><span>Dominant Prakriti</span><p className="text-diagnosis-highlight">{details?.prakriti || "Not Set"}</p></div>
+              <div className="rx-meta-item"><span>Patient Name</span><p>{finalDetails?.name || "User"}</p></div>
+              <div className="rx-meta-item"><span>Age / Gender</span><p>{finalDetails?.age || "--"} Y / {finalDetails?.gender || "--"}</p></div>
+              <div className="rx-meta-item"><span>Dominant Prakriti</span><p className="text-diagnosis-highlight">{finalDetails?.prakriti || "Not Set"}</p></div>
             </div>
           </section>
 
           <div className="rx-vitals-grid" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
-            <div className="rx-vital-card"><span>Season</span><h3>{details?.season || "--"}</h3></div>
-            <div className="rx-vital-card"><span>Diet</span><h3>{details?.diet || "--"}</h3></div>
-            <div className="rx-vital-card"><span>Sleep</span><h3>{details?.sleep || "--"}</h3></div>
-            <div className="rx-vital-card"><span>Stress</span><h3>{details?.stress || "--"}</h3></div>
+            <div className="rx-vital-card"><span>Season</span><h3>{finalDetails?.season || "--"}</h3></div>
+            <div className="rx-vital-card"><span>Diet</span><h3>{finalDetails?.diet || "--"}</h3></div>
+            <div className="rx-vital-card"><span>Sleep</span><h3>{finalDetails?.sleep || "--"}</h3></div>
+            <div className="rx-vital-card"><span>Stress</span><h3>{finalDetails?.stress || "--"}</h3></div>
           </div>
 
           <div className="rx-complaints">
@@ -121,7 +155,7 @@ export default function Result() {
               </div>
             )}
             <p className="rx-sub-label" style={{marginTop: '20px'}}>Chief Complaints / Symptoms</p>
-            <p style={{ fontStyle: "italic", color: "#fff" }}>"{details?.symptoms || "No specific symptoms reported."}"</p>
+            <p style={{ fontStyle: "italic", color: "#fff" }}>"{finalDetails?.symptoms || "No specific symptoms reported."}"</p>
           </div>
 
           <hr style={{ opacity: "0.1", margin: "30px 0" }} />
