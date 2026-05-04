@@ -1,9 +1,10 @@
 import axios from "axios";
 import { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Ayurnavbar from "./Ayurnavbar";
 import "../style.css";
 
+// Yashi, yahan hum direct Live Backend URL set kar rahe hain
 const API_BASE_URL = "https://ayur-sage.onrender.com";
 
 export default function Dashboard() {
@@ -11,6 +12,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
   
   const handleLogout = () => {
     localStorage.clear();
@@ -24,17 +26,14 @@ export default function Dashboard() {
       return;
     }
 
-    // Correctly retrieve user object for the Navbar profile icon
-    const savedUser = localStorage.getItem("user");
-    if (savedUser) {
-      try {
-        setUser(JSON.parse(savedUser));
-      } catch (e) {
-        console.error("User parsing error");
-      }
+    const savedUserName = localStorage.getItem("userName");
+    const savedUserEmail = localStorage.getItem("userEmail");
+    if (savedUserName) {
+      setUser({ name: savedUserName, email: savedUserEmail });
     }
 
     try {
+      // Localhost ko live link se replace kar diya hai
       const res = await axios.get(`${API_BASE_URL}/api/dosha`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -56,17 +55,16 @@ export default function Dashboard() {
 
   return (
     <div className="home-page-wrapper">
-      {/* Passing user object ensures the profile icon shows instead of Login/Signup */}
       <Ayurnavbar user={user} onLogout={handleLogout} />
 
       <div className="about-direct-layout" style={{
           backgroundImage: "url('/images/Login img.png')",
           backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed',
-          minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center',
+          minHeight: '100vh', width: '100%', display: 'flex', justifyContent: 'center',
           padding: '120px 5% 80px 5%', boxSizing: 'border-box'
         }}>
-        <div className="about-content-wrapper" style={{ width: '100%', maxWidth: '1200px' }}>
-          <header className="about-header-simple" style={{ textAlign: 'center', marginBottom: '40px' }}>
+        <div className="about-content-wrapper">
+          <header className="about-header-simple">
             <h1 className="rx-main-title">Wellness Dashboard</h1>
             <p className="vision-tag-gold" style={{ letterSpacing: '3px' }}>
               CHRONOLOGICAL HISTORY • TOTAL RECORDS: {history.length}
@@ -83,18 +81,17 @@ export default function Dashboard() {
               <button className="parrot-action-btn-large" onClick={() => navigate("/predict-dosha")}>Start Assessment</button>
             </div>
           ) : (
-            <div className="dashboard-list-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div className="dashboard-list-scroll">
               {history.map((r, index) => {
-                const displayId = history.length - index; 
+                const displayId = index + 1; 
                 const formData = r.form || r.details || {}; 
-                const resultDosha = r.result || r.dosha;
 
                 return (
                   <div key={r._id || index} className="dashboard-row-item">
                     <div className="dash-meta-grid">
                       <div className="dash-item">
                         <span>Ref ID</span>
-                        <p style={{ color: '#C5F82A', fontWeight: '700' }}>#{displayId}</p>
+                        <p style={{ color: '#FFD700', fontWeight: '700' }}>#{displayId}</p>
                       </div>
                       
                       <div className="dash-item">
@@ -109,7 +106,7 @@ export default function Dashboard() {
 
                       <div className="dash-item">
                         <span>Diagnosis</span>
-                        <p className="text-diagnosis-highlight">{resultDosha}</p>
+                        <p className="text-diagnosis-highlight">{r.result}</p>
                       </div>
 
                       <div className="dash-item">
@@ -123,7 +120,11 @@ export default function Dashboard() {
                           style={{ borderRadius: '50px', padding: '10px 30px' }}
                           onClick={() => {
                             const resultState = { 
-                              result: r, 
+                              result: { 
+                                predicted_dosha: r.result,
+                                predicted_disease: r.disease || "",
+                                treatment: r.treatment || null
+                              }, 
                               details: formData, 
                               type: "History Report", 
                               refId: displayId 
