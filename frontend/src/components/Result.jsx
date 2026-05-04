@@ -36,22 +36,26 @@ export default function Result() {
     );
   }
 
-  // 1. DATA EXTRACTION: Handle both ML response and Database record[cite: 4, 8, 9]
+  // 1. DATA EXTRACTION: Handle both ML response and Database record
   const { result: mlData, details, type, refId } = data;
   
-  // 2. FIELD NORMALIZATION: Map keys to match your Mongoose Schema[cite: 4, 8]
-  // result can be in predicted_dosha (ML) or result (DB)[cite: 4, 9]
+  // 2. FIELD NORMALIZATION: Map keys to match your Mongoose Schema
   const finalResult = mlData?.predicted_dosha || mlData?.result || (typeof mlData === 'string' ? mlData : "Unknown");
   const finalDisease = mlData?.predicted_disease || mlData?.disease || "Not Identified";
+  
+  // 3. TREATMENT: Strictly dynamic. No fallbacks.
   const finalTreatment = mlData?.treatment || null;
   
-  // Use 'form' if loading history, else use 'details' from PredictDosha[cite: 4, 8]
+  // Choose correct details object
   const finalDetails = type === "History Report" ? (mlData?.form || details) : details;
   const today = finalDetails?.date ? new Date(finalDetails.date).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
 
   useEffect(() => {
     const saveResultToDB = async () => {
+      // Do not save if we are just viewing a history report
       if (type === "History Report") return;
+      
+      // Avoid duplicate saves for the same symptoms
       if (localStorage.getItem("lastResultSaved") === JSON.stringify(finalDetails?.symptoms)) return;
 
       const token = localStorage.getItem("token");
@@ -62,7 +66,7 @@ export default function Result() {
           result: finalResult,
           disease: finalDisease,
           details: finalDetails, 
-          treatment: finalTreatment 
+          treatment: finalTreatment // Saved only if provided by ML server
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -125,19 +129,20 @@ export default function Result() {
 
           <hr style={{ opacity: "0.1", margin: "30px 0" }} />
 
+          {/* DYNAMIC TREATMENT DISPLAY: Matches how disease is handled */}
           {finalTreatment ? (
             <>
               <div className="rx-recommendations">
                 <div className="rx-column">
                   <p className="rx-section-title">Ahara (Dietary Plan)</p>
                   <ul className="rx-list">
-                    {finalTreatment.diet ? finalTreatment.diet.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Plan loaded from history...</li>}
+                    {finalTreatment.diet ? finalTreatment.diet.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Dietary plan pending...</li>}
                   </ul>
                 </div>
                 <div className="rx-column">
                   <p className="rx-section-title">Chikitsa (Therapy)</p>
                   <ul className="rx-list">
-                    {finalTreatment.therapy ? finalTreatment.therapy.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Therapy loaded from history...</li>}
+                    {finalTreatment.therapy ? finalTreatment.therapy.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Therapy plan pending...</li>}
                   </ul>
                 </div>
               </div>
@@ -145,17 +150,28 @@ export default function Result() {
               <div style={{ marginTop: "25px" }}>
                 <p className="rx-sub-label">Aushadhi (Medicines)</p>
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
-                  {finalTreatment.medicine?.split(",").map((med, i) => (
+                  {finalTreatment.medicine ? finalTreatment.medicine.split(",").map((med, i) => (
                     <div key={i} style={{ background: "rgba(255, 153, 51, 0.1)", padding: "5px 15px", borderRadius: "20px", color: "#FF9933", border: "1px solid rgba(255, 153, 51, 0.3)", fontSize: "0.9rem" }}>
                       {med.trim()}
                     </div>
-                  ))}
+                  )) : <p style={{color: '#888'}}>Medicines pending clinical review.</p>}
+                </div>
+              </div>
+
+              <div style={{ marginTop: "25px" }}>
+                <p className="rx-sub-label">Vyayama (Exercise Therapy)</p>
+                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
+                  {finalTreatment.exercise ? finalTreatment.exercise.split(",").map((ex, i) => (
+                    <div key={i} style={{ background: "rgba(167, 255, 131, 0.1)", padding: "5px 15px", borderRadius: "20px", color: "#A7FF83", border: "1px solid rgba(167, 255, 131, 0.3)", fontSize: "0.9rem" }}>
+                      {ex.trim()}
+                    </div>
+                  )) : <p style={{color: '#888'}}>Exercise regime pending.</p>}
                 </div>
               </div>
             </>
           ) : (
             <div style={{textAlign: 'center', padding: '20px', border: '1px dashed #A7FF83', borderRadius: '10px'}}>
-               <p style={{color: '#A7FF83'}}>Customized treatment plan successfully retrieved from history.</p>
+               <p style={{color: '#A7FF83'}}>Personalized treatment plan will be provided after doctor consultation.</p>
             </div>
           )}
 
