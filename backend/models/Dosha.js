@@ -21,7 +21,7 @@ const DoshaSchema = new mongoose.Schema({
   // ✅ ADDED: Save the full treatment so history doesn't fall back to dosha lookup
   treatment: {
     type: Object,
-    default: null
+    required: true
   },
 
   date: { 
