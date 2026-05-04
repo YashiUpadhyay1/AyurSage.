@@ -12,7 +12,6 @@ export default function Result() {
   const data = location.state;
   const [user, setUser] = useState(null);
 
-  // 1. User sync from localStorage
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
@@ -24,7 +23,6 @@ export default function Result() {
     }
   }, []);
 
-  // Static Fallbacks for initial save/display if ML server doesn't provide treatment
   const doshaContent = {
     Vata: { diet: "Warm grains, Ghee", therapy: "Abhyanga Massage", medicine: "Ashwagandha", exercise: "Slow Yoga" },
     Pitta: { diet: "Cooling fruits, Coconut", therapy: "Shitala Pranayama", medicine: "Amalaki", exercise: "Swimming" },
@@ -43,14 +41,13 @@ export default function Result() {
     );
   }
 
-  // 2. Data Extraction & Normalization
   const { result: mlData, details, type, refId } = data;
   const finalResult = mlData?.predicted_dosha || mlData?.result || (typeof mlData === 'string' ? mlData : "Unknown");
   const finalDisease = mlData?.predicted_disease || mlData?.disease || "Not Identified";
   const finalDetails = type === "History Report" ? (mlData?.form || details) : details;
   const today = finalDetails?.date ? new Date(finalDetails.date).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
 
-  // 3. Treatment Logic: Prioritize ML response, then Fallback
+  // logic to determine treatment
   let finalTreatment = mlData?.treatment || null;
   if (!finalTreatment && finalResult !== "Unknown") {
     const resStr = finalResult.toLowerCase();
@@ -59,14 +56,17 @@ export default function Result() {
     else if (resStr.includes("kapha")) finalTreatment = doshaContent.Kapha;
   }
 
-  // 4. Database Sync: Saves result only if it's a new prediction
+  // FORCE SAVE TO DB Logic
   useEffect(() => {
     const saveResultToDB = async () => {
-      // Avoid saving history views or invalid results
+      // 1. History report hai toh save mat karo
       if (type === "History Report") return;
+      
+      // 2. IMPORTANT: Jab tak treatment calculat na ho jaye, wait karo
       if (!finalResult || finalResult === "Unknown" || !finalTreatment) return;
 
       const symptomsKey = JSON.stringify(finalDetails?.symptoms);
+      // 3. Duplicate check
       if (localStorage.getItem("lastResultSaved") === symptomsKey) return;
 
       const token = localStorage.getItem("token");
@@ -81,7 +81,7 @@ export default function Result() {
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        // Prevent duplicate saves for the same symptoms in one session
+        
         localStorage.setItem("lastResultSaved", symptomsKey);
         console.log("Assessment saved to database successfully.");
       } catch (err) { 
@@ -90,6 +90,7 @@ export default function Result() {
     };
 
     saveResultToDB();
+    // Dependency array mein finalTreatment zaroor hona chahiye
   }, [finalResult, finalTreatment, finalDisease, finalDetails, type]);
 
   const handleLogout = () => {
