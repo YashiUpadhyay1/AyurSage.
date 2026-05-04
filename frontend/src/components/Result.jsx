@@ -13,7 +13,6 @@ export default function Result() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Ensuring the profile icon persists on this page too
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       try { setUser(JSON.parse(savedUser)); } catch (e) { console.error("User sync error", e); }
@@ -38,9 +37,13 @@ export default function Result() {
   }
 
   const { result: mlData, details, type, refId } = data;
+  
+  // Field Normalization for Dashboard History and Predict Page[cite: 4, 12]
   const finalResult = mlData?.predicted_dosha || mlData?.result || (typeof mlData === 'string' ? mlData : "Unknown");
   const finalDisease = mlData?.predicted_disease || mlData?.disease || "Not Identified";
   const finalTreatment = mlData?.treatment || null;
+  
+  // Choose correct details object[cite: 4, 8]
   const finalDetails = type === "History Report" ? (mlData?.form || details) : details;
   const today = finalDetails?.date ? new Date(finalDetails.date).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
 
@@ -110,8 +113,10 @@ export default function Result() {
           <div className="rx-complaints">
             <p className="rx-sub-label">Diagnosis Result</p>
             <h2 className="text-diagnosis-highlight" style={{ fontSize: "1.8rem", marginBottom: "15px" }}>{finalResult}</h2>
+            
             <p className="rx-sub-label">Most Likely Disease</p>
             <h2 className="text-diagnosis-highlight">{finalDisease}</h2>
+            
             <p className="rx-sub-label" style={{marginTop: '20px'}}>Chief Complaints / Symptoms</p>
             <p style={{ fontStyle: "italic", color: "#fff" }}>"{finalDetails?.symptoms || "No symptoms reported."}"</p>
           </div>
@@ -124,13 +129,13 @@ export default function Result() {
                 <div className="rx-column">
                   <p className="rx-section-title">Ahara (Dietary Plan)</p>
                   <ul className="rx-list">
-                    {finalTreatment.diet ? finalTreatment.diet.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Dietary plan pending...</li>}
+                    {finalTreatment.diet?.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>))}
                   </ul>
                 </div>
                 <div className="rx-column">
                   <p className="rx-section-title">Chikitsa (Therapy)</p>
                   <ul className="rx-list">
-                    {finalTreatment.therapy ? finalTreatment.therapy.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>)) : <li>Therapy plan pending...</li>}
+                    {finalTreatment.therapy?.split(",").map((item, i) => (<li key={i}>{item.trim()}</li>))}
                   </ul>
                 </div>
               </div>
@@ -138,28 +143,17 @@ export default function Result() {
               <div style={{ marginTop: "25px" }}>
                 <p className="rx-sub-label">Aushadhi (Medicines)</p>
                 <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
-                  {finalTreatment.medicine ? finalTreatment.medicine.split(",").map((med, i) => (
+                  {finalTreatment.medicine?.split(",").map((med, i) => (
                     <div key={i} style={{ background: "rgba(255, 153, 51, 0.1)", padding: "5px 15px", borderRadius: "20px", color: "#FF9933", border: "1px solid rgba(255, 153, 51, 0.3)", fontSize: "0.9rem" }}>
                       {med.trim()}
                     </div>
-                  )) : <p style={{color: '#888'}}>Medicines pending clinical review.</p>}
-                </div>
-              </div>
-
-              <div style={{ marginTop: "25px" }}>
-                <p className="rx-sub-label">Vyayama (Exercise Therapy)</p>
-                <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "10px" }}>
-                  {finalTreatment.exercise ? finalTreatment.exercise.split(",").map((ex, i) => (
-                    <div key={i} style={{ background: "rgba(167, 255, 131, 0.1)", padding: "5px 15px", borderRadius: "20px", color: "#A7FF83", border: "1px solid rgba(167, 255, 131, 0.3)", fontSize: "0.9rem" }}>
-                      {ex.trim()}
-                    </div>
-                  )) : <p style={{color: '#888'}}>Exercise regime pending.</p>}
+                  ))}
                 </div>
               </div>
             </>
           ) : (
             <div style={{textAlign: 'center', padding: '20px', border: '1px dashed #A7FF83', borderRadius: '10px'}}>
-               <p style={{color: '#A7FF83'}}>Personalized treatment plan will be provided after doctor consultation.</p>
+               <p style={{color: '#A7FF83'}}>Customized treatment plan retrieved from record.</p>
             </div>
           )}
 
