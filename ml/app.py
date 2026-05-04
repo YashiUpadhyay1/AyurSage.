@@ -25,12 +25,6 @@ def predict_ayurveda(input_dict):
     try:
         input_df = pd.DataFrame([input_dict])
         
-        # --- DEBUG LOGS ---
-        print("--- ML DEBUG ---")
-        print("Expected:", dosha_model.feature_names_in_.tolist())
-        print("Received:", input_df.columns.tolist())
-        print("Types:", input_df.dtypes.to_dict())
-
         # Prediction
         dosha_encoded = dosha_model.predict(input_df)
         predicted_dosha = dosha_encoder.inverse_transform(dosha_encoded)[0]
@@ -46,18 +40,19 @@ def predict_ayurveda(input_dict):
             filtered = dataset[dataset["Disease"] == predicted_disease]
         
         row = filtered.iloc[0]
+        
+        # UPDATED: Key names mapped for Frontend compatibility
         return {
-            "predicted_dosha": predicted_dosha,
-            "predicted_disease": predicted_disease,
+            "predicted_dosha": str(predicted_dosha),
+            "predicted_disease": str(predicted_disease),
             "treatment": {
-                "therapy": row["Therapy"],
-                "medicine": row["Medicines"],
-                "diet": row["Diet Plan"],
-                "exercise": row["Exercise"]
+                "therapy": str(row["Therapy"]),
+                "medicine": str(row["Medicines"]),
+                "diet": str(row["Diet Plan"]), # Mapped to 'diet' for frontend
+                "exercise": str(row["Exercise"])
             }
         }
     except Exception as e:
-        # Return error with details
         return {"error": str(e), "received_keys": list(input_dict.keys())}
 
 @app.route("/predict", methods=["POST"])
