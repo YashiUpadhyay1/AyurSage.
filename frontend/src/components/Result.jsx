@@ -41,13 +41,14 @@ export default function Result() {
     );
   }
 
+  // 1. Data Normalization
   const { result: mlData, details, type, refId } = data;
   const finalResult = mlData?.predicted_dosha || mlData?.result || (typeof mlData === 'string' ? mlData : "Unknown");
   const finalDisease = mlData?.predicted_disease || mlData?.disease || "Not Identified";
   const finalDetails = type === "History Report" ? (mlData?.form || details) : details;
   const today = finalDetails?.date ? new Date(finalDetails.date).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
 
-  // logic to determine treatment
+  // 2. Treatment logic: Isko useEffect se pehle calculate karna zaroori hai
   let finalTreatment = mlData?.treatment || null;
   if (!finalTreatment && finalResult !== "Unknown") {
     const resStr = finalResult.toLowerCase();
@@ -56,23 +57,24 @@ export default function Result() {
     else if (resStr.includes("kapha")) finalTreatment = doshaContent.Kapha;
   }
 
-  // FORCE SAVE TO DB Logic
+  // 3. Force Sync Logic: MongoDB Validation error fix
   useEffect(() => {
     const saveResultToDB = async () => {
-      // 1. History report hai toh save mat karo
+      // History report hai toh dobara save nahi karna
       if (type === "History Report") return;
       
-      // 2. IMPORTANT: Jab tak treatment calculat na ho jaye, wait karo
+      // Jab tak treatment ready na ho, wait karein
       if (!finalResult || finalResult === "Unknown" || !finalTreatment) return;
 
       const symptomsKey = JSON.stringify(finalDetails?.symptoms);
-      // 3. Duplicate check
+      // Duplicate save protection
       if (localStorage.getItem("lastResultSaved") === symptomsKey) return;
 
       const token = localStorage.getItem("token");
       if (!token) return;
 
       try {
+        // Backend 'treatment' field ko explicitly map kar rahe hain
         await axios.post(`${API_BASE_URL}/api/dosha`, {
           result: finalResult,
           disease: finalDisease,
@@ -83,14 +85,14 @@ export default function Result() {
         });
         
         localStorage.setItem("lastResultSaved", symptomsKey);
-        console.log("Assessment saved to database successfully.");
+        console.log("Assessment successfully synced with MongoDB.");
       } catch (err) { 
         console.error("Database save failed:", err.response?.data || err.message); 
       }
     };
 
     saveResultToDB();
-    // Dependency array mein finalTreatment zaroor hona chahiye
+    // Dependency array ensures save triggers when treatment is ready
   }, [finalResult, finalTreatment, finalDisease, finalDetails, type]);
 
   const handleLogout = () => {
