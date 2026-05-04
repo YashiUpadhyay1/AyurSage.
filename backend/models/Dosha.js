@@ -18,10 +18,10 @@ const DoshaSchema = new mongoose.Schema({
     type: String 
   },
 
-  // ✅ ADDED: Save the full treatment so history doesn't fall back to dosha lookup
+  // Save the full treatment so history doesn't fall back to dosha lookup
   treatment: {
     type: Object,
-    required: true
+    default: null
   },
 
   date: { 
