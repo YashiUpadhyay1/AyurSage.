@@ -24,10 +24,14 @@ export default function Dashboard() {
       return;
     }
 
-    const savedUserName = localStorage.getItem("userName");
-    const savedUserEmail = localStorage.getItem("userEmail");
-    if (savedUserName) {
-      setUser({ name: savedUserName, email: savedUserEmail });
+    // Correctly retrieve user object for the Navbar profile icon
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.error("User parsing error");
+      }
     }
 
     try {
@@ -52,16 +56,17 @@ export default function Dashboard() {
 
   return (
     <div className="home-page-wrapper">
+      {/* Passing user object ensures the profile icon shows instead of Login/Signup */}
       <Ayurnavbar user={user} onLogout={handleLogout} />
 
       <div className="about-direct-layout" style={{
           backgroundImage: "url('/images/Login img.png')",
           backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed',
-          minHeight: '100vh', width: '100%', display: 'flex', justifyContent: 'center',
+          minHeight: '100vh', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center',
           padding: '120px 5% 80px 5%', boxSizing: 'border-box'
         }}>
-        <div className="about-content-wrapper">
-          <header className="about-header-simple">
+        <div className="about-content-wrapper" style={{ width: '100%', maxWidth: '1200px' }}>
+          <header className="about-header-simple" style={{ textAlign: 'center', marginBottom: '40px' }}>
             <h1 className="rx-main-title">Wellness Dashboard</h1>
             <p className="vision-tag-gold" style={{ letterSpacing: '3px' }}>
               CHRONOLOGICAL HISTORY • TOTAL RECORDS: {history.length}
@@ -78,7 +83,7 @@ export default function Dashboard() {
               <button className="parrot-action-btn-large" onClick={() => navigate("/predict-dosha")}>Start Assessment</button>
             </div>
           ) : (
-            <div className="dashboard-list-scroll">
+            <div className="dashboard-list-scroll" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {history.map((r, index) => {
                 const displayId = history.length - index; 
                 const formData = r.form || r.details || {}; 
@@ -117,10 +122,9 @@ export default function Dashboard() {
                           className="parrot-outline-btn"
                           style={{ borderRadius: '50px', padding: '10px 30px' }}
                           onClick={() => {
-                            // Pass the record exactly how Result.jsx expects it[cite: 8]
                             const resultState = { 
-                              result: r, // The full database record[cite: 4]
-                              details: r.form || r.details || {}, // Support for both model versions[cite: 2, 4]
+                              result: r, 
+                              details: formData, 
                               type: "History Report", 
                               refId: displayId 
                             };
