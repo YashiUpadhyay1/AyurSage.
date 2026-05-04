@@ -13,6 +13,7 @@ export default function Result() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    // Ensuring the profile icon persists on this page too
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       try { setUser(JSON.parse(savedUser)); } catch (e) { console.error("User sync error", e); }
@@ -36,26 +37,16 @@ export default function Result() {
     );
   }
 
-  // 1. DATA EXTRACTION: Handle both ML response and Database record
   const { result: mlData, details, type, refId } = data;
-  
-  // 2. FIELD NORMALIZATION: Map keys to match your Mongoose Schema
   const finalResult = mlData?.predicted_dosha || mlData?.result || (typeof mlData === 'string' ? mlData : "Unknown");
   const finalDisease = mlData?.predicted_disease || mlData?.disease || "Not Identified";
-  
-  // 3. TREATMENT: Strictly dynamic. No fallbacks.
   const finalTreatment = mlData?.treatment || null;
-  
-  // Choose correct details object
   const finalDetails = type === "History Report" ? (mlData?.form || details) : details;
   const today = finalDetails?.date ? new Date(finalDetails.date).toLocaleDateString("en-GB") : new Date().toLocaleDateString("en-GB");
 
   useEffect(() => {
     const saveResultToDB = async () => {
-      // Do not save if we are just viewing a history report
       if (type === "History Report") return;
-      
-      // Avoid duplicate saves for the same symptoms
       if (localStorage.getItem("lastResultSaved") === JSON.stringify(finalDetails?.symptoms)) return;
 
       const token = localStorage.getItem("token");
@@ -66,7 +57,7 @@ export default function Result() {
           result: finalResult,
           disease: finalDisease,
           details: finalDetails, 
-          treatment: finalTreatment // Saved only if provided by ML server
+          treatment: finalTreatment 
         }, {
           headers: { Authorization: `Bearer ${token}` }
         });
@@ -119,17 +110,14 @@ export default function Result() {
           <div className="rx-complaints">
             <p className="rx-sub-label">Diagnosis Result</p>
             <h2 className="text-diagnosis-highlight" style={{ fontSize: "1.8rem", marginBottom: "15px" }}>{finalResult}</h2>
-            
             <p className="rx-sub-label">Most Likely Disease</p>
             <h2 className="text-diagnosis-highlight">{finalDisease}</h2>
-            
             <p className="rx-sub-label" style={{marginTop: '20px'}}>Chief Complaints / Symptoms</p>
             <p style={{ fontStyle: "italic", color: "#fff" }}>"{finalDetails?.symptoms || "No symptoms reported."}"</p>
           </div>
 
           <hr style={{ opacity: "0.1", margin: "30px 0" }} />
 
-          {/* DYNAMIC TREATMENT DISPLAY: Matches how disease is handled */}
           {finalTreatment ? (
             <>
               <div className="rx-recommendations">
