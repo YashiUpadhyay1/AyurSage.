@@ -8,17 +8,20 @@ router.post("/", auth, async (req, res) => {
   try {
     const { result, disease, details, treatment } = req.body;
 
+    // Data verification for logging
+    console.log("Data Received for Saving:", { result, disease, treatment });
+
     const saved = await Dosha.create({
       user: req.userId,
-      form: details, // Frontend 'details' -> Model 'form'
+      form: details || {}, // Frontend 'details' -> Model 'form'
       result: result,
-      disease: disease,
-      treatment: treatment // Explicitly saving treatment object
+      disease: disease || "Not Identified",
+      treatment: treatment || null // explicitly saving treatment object
     });
 
-    res.json(saved);
+    res.status(201).json(saved);
   } catch (err) {
-    console.log("SAVE ERROR:", err.message);
+    console.log("SAVE ERROR:", err.message); // Validation failure check
     res.status(500).json({ message: "Server error while saving result" });
   }
 });
