@@ -5,9 +5,6 @@ import Swal from 'sweetalert2';
 import Ayurnavbar from "./Ayurnavbar"; 
 import "../style.css";
 
-/**
- * Production Backend URL on Render
- */
 const API_BASE_URL = "https://ayur-sage.onrender.com";
 
 export default function PredictDosha() {
@@ -15,7 +12,7 @@ export default function PredictDosha() {
   const location = useLocation();
   const [step, setStep] = useState(1);
   const [displayText, setDisplayText] = useState("");
-  const [loading, setLoading] = useState(false); // Fix: Added loading state to handle Render spin-up
+  const [loading, setLoading] = useState(false); 
   const fullText = "Identify current imbalances in your lifestyle and health factors";
 
   const [user, setUser] = useState(null);
@@ -119,7 +116,7 @@ export default function PredictDosha() {
       return;
     }
 
-    setLoading(true); // Start loading
+    setLoading(true); 
 
     try {
       // Step 1: Get Prediction from Live ML Model
@@ -155,12 +152,14 @@ export default function PredictDosha() {
       }
 
       // Step 2: Save Assessment Result to Live Database
+      // UPDATED: Included data.treatment to ensure it saves to MongoDB
       await axios.post(
         `${API_BASE_URL}/api/dosha`,
         { 
           result: data.predicted_dosha, 
           disease: data.predicted_disease, 
-          details: form 
+          details: form,
+          treatment: data.treatment // Now correctly passing the AI-generated treatment
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -170,7 +169,6 @@ export default function PredictDosha() {
       });
 
     } catch (err) {
-      // Fix: Detailed logging to catch why the AI server fails
       console.error("ML Error Details:", err.response?.data || err.message);
       
       Swal.fire({
@@ -182,7 +180,7 @@ export default function PredictDosha() {
         confirmButtonColor: '#C5F82A'
       });
     } finally {
-      setLoading(false); // End loading
+      setLoading(false); 
     }
   };
 
